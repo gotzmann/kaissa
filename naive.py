@@ -1,5 +1,21 @@
 import chess
 import random
+import sys
+import argparse
+#from movegeneration import next_move
+from command import command
+
+depth = 1
+board = chess.Board()
+
+while True:
+    msg = input()
+    print(f">>> {msg}", file=sys.stderr)
+    command(depth, board, msg)
+
+sys.exit()
+
+#######################################################
 
 max_moves = 10
 move_count = max_moves
@@ -27,3 +43,5 @@ while move_count >= max_moves:
         #print("---------------")    
         #print(board)
         #print("---------------")    
+
+
