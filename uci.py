@@ -41,8 +41,9 @@ def uci(msg: str, board: chess.Board, depth = 1: int):
 
     if msg[0:2] == "go":
         #_move = next_move(depth, board)
-        moves = list(board.legal_moves)
-        move = random.choice(moves)
+        #moves = list(board.legal_moves)
+        #move = random.choice(moves)
+        move = search(board, depth, 0)
         board.push(move)
         #print(f"bestmove {_move}")
         print(f"bestmove {move}")
