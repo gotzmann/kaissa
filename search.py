@@ -1,11 +1,16 @@
 import chess
 import random
+from evaluate import evaluate
 
-# TODO 
-
+best_move = None
 def search(board: chess.Board, depth: int, score: int):
+
     if depth == 0:
         score = evaluate(board)
+        #print("\n--- SEARCH! ---")
+        #print(board)
+        #print("---------------")
+        #print("SCORE =>", score)
         return score
 
     moves = board.legal_moves
@@ -16,9 +21,8 @@ def search(board: chess.Board, depth: int, score: int):
         board.pop()
 
         if new_score > score:
+            score = new_score
             best_move = move
+            #print("[MAX] =>", score, "|", move)
 
-    negamax( depth - 1)
-
-    #move = random.choice(moves)
-    #return random.randint(0, 10000)
+    return best_move

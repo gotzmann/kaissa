@@ -1,13 +1,17 @@
 import chess
 import random
+from search import search
+from log import log
 
-# TODO 
+# TODO Teach engine to play both white and black sides
 
-def uci(msg: str, board: chess.Board, depth = 1: int):    
+def command(msg: str, board: chess.Board, depth: int):    
     """
     Accept UCI commands and respond.
     The board state is also updated.
     """
+
+    log(f">>> {msg}")
 
     if msg == "quit":
         sys.exit()
@@ -26,6 +30,7 @@ def uci(msg: str, board: chess.Board, depth = 1: int):
         # TODO ...
         return
 
+    # TODO Use chess.parse_uci()
     if "position startpos moves" in msg:
         moves = msg.split(" ")[3:]
         board.clear()
@@ -41,9 +46,11 @@ def uci(msg: str, board: chess.Board, depth = 1: int):
 
     if msg[0:2] == "go":
         #_move = next_move(depth, board)
-        moves = list(board.legal_moves)
-        move = random.choice(moves)
+        #moves = list(board.legal_moves)
+        #move = random.choice(moves)
+        move = search(board, depth, -100000)
         board.push(move)
         #print(f"bestmove {_move}")
         print(f"bestmove {move}")
+        log(f"<<< bestmove {move}")
         return        

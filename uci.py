@@ -1,50 +1,30 @@
 import chess
 import random
+import sys
+import argparse
+from command import command
+from log import log
 
-# TODO 
+defaultDepth = 1
+board = chess.Board()
 
-def uci(msg: str, board: chess.Board, depth = 1: int):    
-    """
-    Accept UCI commands and respond.
-    The board state is also updated.
-    """
+log("\n[KAISSA64] Start new session...")
 
-    if msg == "quit":
-        sys.exit()
+while True:
+    msg = input()
+    print(f">>> {msg}", file=sys.stderr)
+    command(msg, board, defaultDepth)
 
-    if msg == "uci":
-        print("id name Kaissa64")  
-        print("id author Serge Gotsuliak")
-        print("uciok")
-        return
+sys.exit()
 
-    if msg == "isready":
-        print("readyok")
-        return
-
-    if msg == "ucinewgame":
-        # TODO ...
-        return
-
-    if "position startpos moves" in msg:
-        moves = msg.split(" ")[3:]
-        board.clear()
-        board.set_fen(chess.STARTING_FEN)
-        for move in moves:
-            board.push(chess.Move.from_uci(move))
-        return
-
-    if "position fen" in msg:
-        fen = " ".join(msg.split(" ")[2:])
-        board.set_fen(fen)
-        return
-
-    if msg[0:2] == "go":
-        #_move = next_move(depth, board)
-        #moves = list(board.legal_moves)
-        #move = random.choice(moves)
-        move = search(board, depth, 0)
-        board.push(move)
-        #print(f"bestmove {_move}")
-        print(f"bestmove {move}")
-        return        
+#[KAISSA64] Start new session...
+#>>> uci
+#>>> ucinewgame
+#>>> isready
+#>>> position startpos moves e2e4
+#>>> go wtime 180000 btime 180000 winc 2000 binc 2000
+#<<< bestmove g8h6
+#>>> position startpos moves e2e4
+#>>> go wtime 180000 btime 180000 winc 2000 binc 2000
+#<<< bestmove g8h6
+#>>> quit
