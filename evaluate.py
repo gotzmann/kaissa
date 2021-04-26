@@ -32,40 +32,36 @@ positionWeights = [
 # Calculate simple one using sum of material and positional scores
 
 def evaluate(board: chess.Board):
-
-    #score = random.randint(0, 10000)
+    
     score = 0
 
-    # loop over board squares
-    # for (var square = 0; square < 128; square++) {
-
+    # The board already applied the move so we should use 
+    # color of "previous" turn to evaluate score properly
+    turn = not board.turn
+    
     # Iterate over all 64 squares of board    
     for square in chess.SQUARES: 
 
-        # let piece = board[square]          
-        # make sure square contains a piece
-        #    if (piece) {
-        piece = board.piece_type_at(square)  # 1 .. 6 or None              
-        #print(board.color_at(square))
+        piece = board.piece_type_at(square)  # 1 .. 6 or None                      
         if piece:
-
-            # calculate material score
-            # score += pieceWeights[piece & 15];
-             
-            # and board.color_at(square) == chess.WHITE: # True for whites and False for blacks
+            
+            # Calculate material and positional score            
+            #if board.color_at(square) != board.turn:
             if board.color_at(square) == chess.WHITE:
+            #if board.color_at(square) == turn:
                 score += pieceWeights[piece]
-                score += positionWeights[square]
+                score += positionWeights[square]                
             else:    
                 score -= pieceWeights[piece]
                 score -= positionWeights[square]
-            
-            # calculate positional score
-            # (piece & 8) ? (score += board[square + 8]) : (score -= board[square + 8]);
-            #print(chess.square_file(square))
-            #print(square)
-            #score += positionWeights[chess.square_file(square)]
 
-            ###score += positionWeights[square]
+    score = -score if turn == chess.BLACK else score
     
-    return score
+    #color = "WHITE" if turn == chess.WHITE else "BLACK"
+    #print("\n-- EVAL", color, "-")
+    #print(board)
+    #print("---------------")
+    #print("SCORE =>", score)   
+                
+    return score                        
+    

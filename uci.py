@@ -8,13 +8,15 @@ from log import log
 defaultDepth = 1
 board = chess.Board()
 
-log("\n[KAISSA64] Start new session...")
+log("\n[KAISSA64] Start new session...\n")
 
 while True:
     msg = input()
-    print(f">>> {msg}", file=sys.stderr)
+    log(f">>> {msg}")
+    #print(f">>> {msg}", file=sys.stderr)
     command(msg, board, defaultDepth)
 
+log("\n[KAISSA64] Session was ended...")
 sys.exit()
 
 #[KAISSA64] Start new session...

@@ -6,41 +6,41 @@ import argparse
 #from uci import uci
 from search import search
 
-defaultDepth = 1
-maxPlies = 2
-
+defaultDepth = 4
+maxPlies = 6
 board = chess.Board()
+#board.turn = chess.WHITE
 ply = 0
 
-#while not board.is_checkmate():
-while ply <= maxPlies:
+while ply < maxPlies:
 
     if board.is_game_over():
-        #ply = step
-        #print("\n---------------")
-        #print(i + 1, "=>", move)
-        #print("---------------")    
-        #print(board)
-        #print("---------------")    
-        print("!CHECK'N'МАТE!")
-        print("---------------")
+        print("===============")
+        print("   CHECKМАТE   ")        
+        print("===============")
         break        
 
     # Make evaluated move for whites and just any random for blacks
-    if board.turn == chess.WHITE:
-        move = search(board, defaultDepth, -100000)
-    else:
-        if ply == 1:
-            move = chess.Move(chess.B7, chess.B5)
-        else:    
-            moves = list(board.legal_moves)
-            move = random.choice(moves)
+    ###if board.turn == chess.WHITE:
+        ###score, move = search(board, defaultDepth, -10000, None)
+        #print(score)
+        #print(move)
+        #move = chess.Move(chess.B7, chess.B5)
+        #print(move)
+    ###else:
+    ###    if ply == 1:
+    ###        move = chess.Move(chess.B7, chess.B5)
+    ###    else:    
+            #moves = list(board.legal_moves)
+            #move = random.choice(moves)
+    ###        score, move = search(board, defaultDepth, -10000, None)
 
+    score, move = search(board, defaultDepth, -10000, None)
     board.push(move)   
     ply += 1
 
-    print("\n---------------")
+    print("\n===============")    
     print("#", ply, "=>", move)
-    print("---------------")    
+    print("===============")    
     print(board)
-    print("---------------")    
+    print("===============")        

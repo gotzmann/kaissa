@@ -11,9 +11,10 @@ def command(msg: str, board: chess.Board, depth: int):
     The board state is also updated.
     """
 
-    log(f">>> {msg}")
+    #log(f">>> {msg}")
 
     if msg == "quit":
+        log("\n[KAISSA64] Session was ended...")
         sys.exit()
 
     if msg == "uci":
@@ -28,6 +29,11 @@ def command(msg: str, board: chess.Board, depth: int):
 
     if msg == "ucinewgame":
         # TODO ...
+        return
+
+    # Game started and we play whites
+    if msg == "position startpos":
+        board.clear()
         return
 
     # TODO Use chess.parse_uci()
@@ -48,7 +54,7 @@ def command(msg: str, board: chess.Board, depth: int):
         #_move = next_move(depth, board)
         #moves = list(board.legal_moves)
         #move = random.choice(moves)
-        move = search(board, depth, -100000)
+        score, move = search(board, depth, -100000, None)
         board.push(move)
         #print(f"bestmove {_move}")
         print(f"bestmove {move}")
