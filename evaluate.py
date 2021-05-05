@@ -55,7 +55,9 @@ def evaluate(board: chess.Board):
                 score -= pieceWeights[piece]
                 score -= positionWeights[square]
 
-    score = -score if turn == chess.BLACK else score
+    #score = -score if turn == chess.BLACK else score
+    if turn == chess.BLACK:
+        score = -score
     
     #color = "WHITE" if turn == chess.WHITE else "BLACK"
     #print("\n-- EVAL", color, "-")
