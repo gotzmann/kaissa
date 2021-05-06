@@ -14,14 +14,19 @@ import psutil
 process = psutil.Process(os.getpid())
 mem = round(process.memory_info().rss / 1024 / 1024, 2)
 #mem1 = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-print("MEM1", round(mem, 2), "Mb")
+#print("MEM1", round(mem, 2), "Mb")
 #count = 0
 
-defaultDepth = 1
-maxPlies = 4
+defaultDepth = 3
+maxPlies = 6
 board = chess.Board()
 #board.turn = chess.WHITE
 ply = 0
+moves = [ 
+    chess.Move.from_uci("e2e4"),
+    chess.Move.from_uci("d7d5"),
+    chess.Move.from_uci("f1b5"),
+]
 
 while ply < maxPlies:
 
@@ -46,16 +51,27 @@ while ply < maxPlies:
             #move = random.choice(moves)
     ###        score, move = search(board, defaultDepth, -10000, None)
 
-    #score, move = search(board, defaultDepth, -10000)
-    score = search.negamax(board, defaultDepth, -10000)
+    #score, move = search(board, defaultDepth, -10000)    
+    #print("MAIN", search.temp_move, search.best_move)
+    
+    print([move.uci() for move in board.legal_moves], "=>", len(list(board.legal_moves)))
 
-    print("MAIN", search.temp_move, search.best_move)
+#    if ply < len(moves):
+#        score = 0
+        #search.best_move = moves[ply]
+#        search.bestMove = moves[ply]
+#    else:    
+        #search.best_move = None
+        #score = search.negamax(board, defaultDepth, -10000)    
+    score = search.negamax(board, defaultDepth, -10000, 10000)    
 
-    board.push(search.best_move)   
+    #board.push(search.best_move)   
+    board.push(search.bestMove)   
     ply += 1
-
-    print("\n===============")    
-    print("#", ply, "=>", search.best_move, "|", score)
+    
+    print("===============")    
+    #print(f"# {ply} => {search.best_move} | {score}")
+    print(f"# {ply} => {search.bestMove} | {score}")
     print("===============")    
     print(board)
     print("===============")        
