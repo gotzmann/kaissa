@@ -5,23 +5,31 @@ import copy
 import os
 import psutil
 
-#count = 0
+count = 0
 #best_move = chess.Move.from_uci("a2a3")
 #best_move = None
 #temp_move = None
 
-bestMove = None
+#bestMove = None
 
 #def negamax(board: chess.Board, depth: int, max: int):
-def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
-    global bestMove
-    tempBestMove = None
+def search(board: chess.Board, depth: int, alpha: int, beta: int, returnMove: bool = False, returnCount: bool = False):
+    global count
+    if returnCount:
+        count = 0
+    else:
+        count += 1    
+    #tempBestMove = None
     
     #global best_move, temp_move
 
     #global count
     #count += 1
 
+    # TODO Current Player PoV !!!
+    # https://www.researchgate.net/publication/262672371_A_Comparative_Study_of_Game_Tree_Searching_Methods
+    # evaluate leaf gamePositionition from
+    # current player’s standpoint
     #if depth == 0 or gameIsOver???:               
     if depth == 0:               
         #return evaluate(board), None
@@ -38,11 +46,13 @@ def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
     #print("TOTAL LEGAL MOVES:", len(list(board.legal_moves)))
     #print([move.uci() for move in board.legal_moves], "=>", len(list(board.legal_moves)))
 
-    oldAlpha = alpha
+#    oldAlpha = alpha
     #tempBestSourceSquare = None
     #tempBestTargetSquare = None
-    tempBestMove = None
+    
     max = -10000
+    bestMove = None
+    turn = board.turn
 
     for move in board.legal_moves:                
 
@@ -52,7 +62,7 @@ def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
 #        if capturedPiece == chess.KING:
 #            return 10000
 
-        #print(move, " | ", evaluate(board))
+        #print(move, " | ", evaluate(board))        
 
         board.push(move)
         #new_score, new_move = search(board, depth-1, best_score, best_move)        
@@ -66,13 +76,31 @@ def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
         #score = negamax(copy.deepcopy(board), depth-1, max)
         #score = negamax(board, depth-1, max)
 
-        score = -negamax(board, depth-1, -beta, -alpha)
+        #score = -search(board, depth-1, -beta, -alpha)
+        
+        # https://github.com/aaron-hanson/negamax-alpha-beta/blob/master/index.js
 
+        #sideChanged = 1 if board.turn == turn else -1
+        # Do not inverse score for the first search where moving side stays same
+        if returnMove:
+            sideChanged = 1
+        else:    
+            sideChanged = -1
+
+        score = sideChanged * search(
+            board, 
+            depth-1, 
+            sideChanged * alpha, 
+            sideChanged * beta
+        )
+
+        score = sideChanged * search(board, depth-1, -beta, -alpha)
         
         #board_copy = copy.deepcopy(board)
         #board_copy.push(move)            
         #print("\n-- BEST MOVE --")
-        print(f"\n[ {depth} ]", "WHITE" if not board.turn else "BLACK", move, "=>", evaluate(board))
+        print("\n---------------")   
+        print(f"DEPTH {depth}", "WHITE" if not board.turn else "BLACK", move, "=>", evaluate(board))
         print("---------------")   
         print(board)
         print("---------------")   
@@ -83,26 +111,33 @@ def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
 
         if score > max: 
             max = score
-            #bestMove = move
-            tempBestMove = move
+            
+            #tempBestMove = move
 
         #if score > alpha:
         if max > alpha: 
             alpha = max
+            bestMove = move
             #if score >= beta: return beta                
             #tempBestMove = move
 
-#        if alpha >= beta: 
+        if alpha >= beta: 
+            break
             #return beta                    
  #           return alpha
 
-        if max >= beta: 
-            break
+        #if max >= beta: 
+        #    break
         
-    if alpha != oldAlpha:
-       bestMove = tempBestMove
+#    if alpha != oldAlpha:
+#       bestMove = tempBestMove
     
-    return alpha
+    if returnMove and returnCount:
+        return max, bestMove, count
+    elif returnMove:
+        return max, bestMove
+    else:    
+        return max
     #return max
 
 

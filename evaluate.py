@@ -42,18 +42,19 @@ def evaluate(board: chess.Board):
     # Iterate over all 64 squares of board    
     for square in chess.SQUARES: 
 
-        piece = board.piece_type_at(square)  # 1 .. 6 or None                      
-        if piece:
+        piece = board.piece_type_at(square)  # 1 .. 6 or None   
+                           
+        if not piece: continue
             
-            # Calculate material and positional score            
-            #if board.color_at(square) != board.turn:
-            if board.color_at(square) == chess.WHITE:
-            #if board.color_at(square) == turn:
-                score += pieceWeights[piece]
-                score += positionWeights[square]                
-            else:    
-                score -= pieceWeights[piece]
-                score -= positionWeights[square]
+        # Calculate material and positional score            
+        #if board.color_at(square) != board.turn:
+        if board.color_at(square) == chess.WHITE:
+        #if board.color_at(square) == turn:
+            score += pieceWeights[piece]
+            score += positionWeights[square]                
+        else:    
+            score -= pieceWeights[piece]
+            score -= positionWeights[square]
 
     #score = -score if turn == chess.BLACK else score
     if turn == chess.BLACK:
