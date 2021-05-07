@@ -1,9 +1,9 @@
 import chess
 import random
 from evaluate import evaluate
-import copy
-import os
-import psutil
+#import copy
+#import os
+#import psutil
 
 count = 0
 #best_move = chess.Move.from_uci("a2a3")
@@ -13,12 +13,11 @@ count = 0
 #bestMove = None
 
 #def negamax(board: chess.Board, depth: int, max: int):
-def search(board: chess.Board, depth: int, alpha: int, beta: int, returnMove: bool = False, returnCount: bool = False):
+def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta: int = 10000, returnMove: bool = False, returnCount: bool = False, tree: str = ""):
+
+    # Lets count all nested calls for search within current move
     global count
-    if returnCount:
-        count = 0
-    else:
-        count += 1    
+    count = 0 if returnCount else count + 1    
     #tempBestMove = None
     
     #global best_move, temp_move
@@ -32,8 +31,16 @@ def search(board: chess.Board, depth: int, alpha: int, beta: int, returnMove: bo
     # current player’s standpoint
     #if depth == 0 or gameIsOver???:               
     if depth == 0:               
-        #return evaluate(board), None
-        return evaluate(board)
+
+#        print("\n---------------") 
+#        print(tree, "=>", evaluate(board, turn))  
+#        print("---------------")   
+        #print(f"TERMINAL", "WHITE" if turn else "BLACK", "=>", evaluate(board, turn))
+        #print("---------------")   
+#        print(board)
+#        print("---------------")   
+
+        return evaluate(board, turn)
 
     #max = -10000 # -Infinity
     #best_move = None        
@@ -52,7 +59,7 @@ def search(board: chess.Board, depth: int, alpha: int, beta: int, returnMove: bo
     
     max = -10000
     bestMove = None
-    turn = board.turn
+#    turn = board.turn
 
     for move in board.legal_moves:                
 
@@ -82,28 +89,32 @@ def search(board: chess.Board, depth: int, alpha: int, beta: int, returnMove: bo
 
         #sideChanged = 1 if board.turn == turn else -1
         # Do not inverse score for the first search where moving side stays same
-        if returnMove:
-            sideChanged = 1
-        else:    
-            sideChanged = -1
+#        if returnMove:
+#            sideChanged = 1
+#        else:    
+#            sideChanged = -1
 
-        score = sideChanged * search(
-            board, 
-            depth-1, 
-            sideChanged * alpha, 
-            sideChanged * beta
-        )
+#        score = sideChanged * search(
+#            board, 
+#            turn,
+#            depth-1, 
+#            sideChanged * alpha, 
+#            sideChanged * beta
+#        )
 
-        score = sideChanged * search(board, depth-1, -beta, -alpha)
+        tree += " > " + move.uci()
+        #score = sideChanged * search(board, turn, depth-1, -beta, -alpha, tree = tree)
+        #score = -search(board, turn, depth-1, -beta, -alpha, tree = tree)
+        #score = sideChanged * search(board, turn, depth-1, sideChanged * alpha, sideChanged * beta, tree = tree)
+        #score = -search(board, turn, depth-1, -beta, -alpha, tree = tree)
+#        score = sideChanged * search(board, turn, depth-1, -beta, -alpha, tree = tree)
+        score = -search(board, turn, depth-1, tree = tree)
         
-        #board_copy = copy.deepcopy(board)
-        #board_copy.push(move)            
-        #print("\n-- BEST MOVE --")
-        print("\n---------------")   
-        print(f"DEPTH {depth}", "WHITE" if not board.turn else "BLACK", move, "=>", evaluate(board))
-        print("---------------")   
-        print(board)
-        print("---------------")   
+#        print("\n---------------")   
+#        print(f"DEPTH {depth-1}", "WHITE" if board.turn else "BLACK", move, "=>", evaluate(board, turn))
+#        print("---------------")   
+#        print(board)
+#        print("---------------")   
 
         board.pop()    
 
@@ -111,18 +122,20 @@ def search(board: chess.Board, depth: int, alpha: int, beta: int, returnMove: bo
 
         if score > max: 
             max = score
-            
+            bestMove = move            
             #tempBestMove = move
 
+        # adjust the search window
         #if score > alpha:
-        if max > alpha: 
-            alpha = max
-            bestMove = move
+####        if max > alpha: 
+####            alpha = max
+#            bestMove = move
             #if score >= beta: return beta                
             #tempBestMove = move
 
-        if alpha >= beta: 
-            break
+        # cut off
+####        if alpha >= beta: 
+####            break
             #return beta                    
  #           return alpha
 

@@ -5,7 +5,7 @@ import argparse
 from command import command
 from log import log
 
-defaultDepth = 1
+defaultDepth = 3
 board = chess.Board()
 
 log("\n[KAISSA64] Start new session...\n")

@@ -1,6 +1,7 @@
 import chess
 import random
-from search import search
+#from search import search
+from negamax import search
 from log import log
 
 # TODO Teach engine to play both white and black sides
@@ -42,6 +43,7 @@ def command(msg: str, board: chess.Board, depth: int):
         board.clear()
         board.set_fen(chess.STARTING_FEN)
         for move in moves:
+            log(f">>> board.push {move}")
             board.push(chess.Move.from_uci(move))
         return
 
@@ -54,9 +56,12 @@ def command(msg: str, board: chess.Board, depth: int):
         #_move = next_move(depth, board)
         #moves = list(board.legal_moves)
         #move = random.choice(moves)
-        score, move = search(board, depth, -100000, None)
+        log(f"... searching best move")
+        score, move = search(board, board.turn, depth, returnMove = True)        
+        log(f"... {move} => {score}")
+        log(f"... push move")
         board.push(move)
         #print(f"bestmove {_move}")
-        print(f"bestmove {move}")
         log(f"<<< bestmove {move}")
+        print(f"bestmove {move}")        
         return        

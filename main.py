@@ -9,8 +9,8 @@ import argparse
 #import negamax
 from negamax import search
 #import resource
-import os
-import psutil
+#import os
+#import psutil
 
 #process = psutil.Process(os.getpid())
 #mem = round(process.memory_info().rss / 1024 / 1024, 2)
@@ -18,8 +18,9 @@ import psutil
 #print("MEM1", round(mem, 2), "Mb")
 #count = 0
 
-defaultDepth = 2
-maxPlies = 4
+tree = ""
+defaultDepth = 3
+maxPlies = 6
 board = chess.Board()
 #board.turn = chess.WHITE
 ply = 0
@@ -28,6 +29,12 @@ moves = [
     chess.Move.from_uci("d7d5"),
     chess.Move.from_uci("f1b5"),
 ]
+#moves = []
+moves = [ 
+    chess.Move.from_uci("e2e4"),
+    chess.Move.from_uci("d7d5"),
+]
+moves = []
 
 while ply < maxPlies:
 
@@ -51,30 +58,28 @@ while ply < maxPlies:
             #moves = list(board.legal_moves)
             #move = random.choice(moves)
     ###        score, move = search(board, defaultDepth, -10000, None)
-
-    #score, move = search(board, defaultDepth, -10000)    
-    #print("MAIN", search.temp_move, search.best_move)
     
     print("\n[", len(list(board.legal_moves)), "] =>", [ move.uci() for move in board.legal_moves ])
 
-#    if ply < len(moves):
-#        score = 0
-        #search.best_move = moves[ply]
-#        search.bestMove = moves[ply]
-#    else:    
+    if ply < len(moves):
+        score = count = 0
+        move = moves[ply]        
+    else:    
         #search.best_move = None
         #score = search.negamax(board, defaultDepth, -10000)    
-    #score = search.negamax(board, defaultDepth, -10000, 10000)    
-    score, move, count = search(board, defaultDepth, -10000, 10000, returnMove = True, returnCount = True)    
+        #score = search.negamax(board, defaultDepth, -10000, 10000)    
+        score, move, count = search(board, board.turn, defaultDepth, -10000, 10000, returnMove = True, returnCount = True, tree = tree)    
+#    score, move, count = search(board, defaultDepth, -10000, 10000, returnMove = True, returnCount = True)    
 
     #board.push(search.best_move)   
     board.push(move)   
+    tree += move.uci() + " | "
     ply += 1
     
     print("\n===============")    
     #print(f"# {ply} => {search.best_move} | {score}")
     #print(f"# {ply} => {search.bestMove} | {score}")
-    print(f"MOVE {ply} => {move} of {count}")
+    print(f"MOVE {ply} => {move} of {count} => {score}")
     print("===============")    
     print(board)
     print("===============")        
