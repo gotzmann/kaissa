@@ -1,0 +1,110 @@
+None Move -10000 Exception
+
+------------------------------------------------------------------
+
+2021-05-07 20:34:20,435 :: __init__ :: line: 623 :: DEBUG :: Using proactor: IocpProactor
+2021-05-07 20:34:20,441 :: connection_made :: line: 958 :: DEBUG :: <UciProtocol (pid=15980)>: Connection made
+2021-05-07 20:34:20,441 :: send_line :: line: 980 :: DEBUG :: <UciProtocol (pid=15980)>: << uci
+2021-05-07 20:34:20,458 :: _line_received :: line: 1007 :: DEBUG :: <UciProtocol (pid=15980)>: >> 
+2021-05-07 20:34:20,458 :: _line_received :: line: 1007 :: DEBUG :: <UciProtocol (pid=15980)>: >> C:\git\kaissa64>python uci.py 
+2021-05-07 20:34:20,574 :: _line_received :: line: 1007 :: DEBUG :: <UciProtocol (pid=15980)>: >> id name Kaissa64
+2021-05-07 20:34:20,574 :: _line_received :: line: 1007 :: DEBUG :: <UciProtocol (pid=15980)>: >> id author Serge Gotsuliak
+2021-05-07 20:34:20,574 :: _line_received :: line: 1007 :: DEBUG :: <UciProtocol (pid=15980)>: >> uciok
+2021-05-07 20:34:20,575 :: send_line :: line: 980 :: DEBUG :: <UciProtocol (pid=15980)>: << ucinewgame
+2021-05-07 20:34:20,575 :: send_line :: line: 980 :: DEBUG :: <UciProtocol (pid=15980)>: << isready
+2021-05-07 20:34:20,576 :: _line_received :: line: 1007 :: DEBUG :: <UciProtocol (pid=15980)>: >> readyok
+2021-05-07 20:34:20,576 :: send_line :: line: 980 :: DEBUG :: <UciProtocol (pid=15980)>: << position startpos moves e2e4 e7e5 g1f3 f8c5 f3e5 d7d5 e4d5 d8e7 f2f4 c8f5 c2c4 g8f6 b1c3 c5d4 d2d3 h8g8 g2g4 f5g6 f1h3 e8d8 h1f1 b8a6 g4g5 f6e8 d1c2 e8d6 e1d1 g6h5 d1d2 f7f6 g5f6 e7f8 f1e1 d8e8 e1e4 d4c5 c2a4 c7c6 e4e3 a6c7 e5g6 d6e4 e3e4 c7e6 g6f8 e8d8 e4e6 h5f3 f6f7 g8h8 f8g6 h8g8 e6f6 c5d4 d5c6 b7b6 f7f8q g8f8 f6f8 d8c7 f8a8 c7d6 a8a7 b6b5 a4b5 d4e3 d2e3
+2021-05-07 20:34:20,576 :: send_line :: line: 980 :: DEBUG :: <UciProtocol (pid=15980)>: << go wtime 77600 btime 77600 winc 2000 binc 2000
+2021-05-07 20:34:20,879 :: error_line_received :: line: 1004 :: WARNING :: <UciProtocol (pid=15980)>: stderr >> Traceback (most recent call last):
+2021-05-07 20:34:20,879 :: error_line_received :: line: 1004 :: WARNING :: <UciProtocol (pid=15980)>: stderr >>   File "uci.py", line 17, in <module>
+2021-05-07 20:34:20,879 :: error_line_received :: line: 1004 :: WARNING :: <UciProtocol (pid=15980)>: stderr >>     command(msg, board, defaultDepth)
+2021-05-07 20:34:20,880 :: error_line_received :: line: 1004 :: WARNING :: <UciProtocol (pid=15980)>: stderr >>   File "C:\git\kaissa64\command.py", line 63, in command
+2021-05-07 20:34:20,880 :: error_line_received :: line: 1004 :: WARNING :: <UciProtocol (pid=15980)>: stderr >>     board.push(move)
+2021-05-07 20:34:20,880 :: error_line_received :: line: 1004 :: WARNING :: <UciProtocol (pid=15980)>: stderr >>   File "C:\ProgramData\Miniconda3\lib\site-packages\chess\__init__.py", line 2166, in push
+2021-05-07 20:34:20,880 :: error_line_received :: line: 1004 :: WARNING :: <UciProtocol (pid=15980)>: stderr >>     move = self._to_chess960(move)
+2021-05-07 20:34:20,880 :: error_line_received :: line: 1004 :: WARNING :: <UciProtocol (pid=15980)>: stderr >>   File "C:\ProgramData\Miniconda3\lib\site-packages\chess\__init__.py", line 3572, in _to_chess960
+2021-05-07 20:34:20,880 :: error_line_received :: line: 1004 :: WARNING :: <UciProtocol (pid=15980)>: stderr >>     if move.from_square == E1 and self.kings & BB_E1:
+2021-05-07 20:34:20,880 :: error_line_received :: line: 1004 :: WARNING :: <UciProtocol (pid=15980)>: stderr >> AttributeError: 'NoneType' object has no attribute 'from_square'
+2021-05-07 20:34:20,887 :: process_exited :: line: 977 :: DEBUG :: <UciProtocol (pid=15980)>: Process exited
+2021-05-07 20:34:20,887 :: connection_lost :: line: 964 :: DEBUG :: <UciProtocol (pid=15980)>: Connection lost (exit code: 1, error: None)
+2021-05-07 20:34:20,887 :: engine_terminated :: line: 1702 :: DEBUG :: <UciProtocol (pid=15980)>: Closing analysis because engine has been terminated (error: engine process died unexpectedly (exit code: 1))
+
+----------------------------------------------------------------
+
+[KAISSA64] Start new session...
+
+>>> uci
+>>> ucinewgame
+>>> isready
+>>> position startpos moves e2e4 e7e5 g1f3 f8c5 f3e5 d7d5 e4d5 d8e7 f2f4 c8f5 c2c4 g8f6 b1c3 c5d4 d2d3 h8g8 g2g4 f5g6 f1h3 e8d8 h1f1 b8a6 g4g5 f6e8 d1c2 e8d6 e1d1 g6h5 d1d2 f7f6 g5f6 e7f8 f1e1 d8e8 e1e4 d4c5 c2a4 c7c6 e4e3 a6c7 e5g6 d6e4 e3e4 c7e6 g6f8 e8d8 e4e6 h5f3 f6f7 g8h8 f8g6 h8g8 e6f6 c5d4 d5c6 b7b6 f7f8q g8f8 f6f8 d8c7 f8a8 c7d6 a8a7 b6b5 a4b5 d4e3 d2e3
+>>> board.push e2e4
+>>> board.push e7e5
+>>> board.push g1f3
+>>> board.push f8c5
+>>> board.push f3e5
+>>> board.push d7d5
+>>> board.push e4d5
+>>> board.push d8e7
+>>> board.push f2f4
+>>> board.push c8f5
+>>> board.push c2c4
+>>> board.push g8f6
+>>> board.push b1c3
+>>> board.push c5d4
+>>> board.push d2d3
+>>> board.push h8g8
+>>> board.push g2g4
+>>> board.push f5g6
+>>> board.push f1h3
+>>> board.push e8d8
+>>> board.push h1f1
+>>> board.push b8a6
+>>> board.push g4g5
+>>> board.push f6e8
+>>> board.push d1c2
+>>> board.push e8d6
+>>> board.push e1d1
+>>> board.push g6h5
+>>> board.push d1d2
+>>> board.push f7f6
+>>> board.push g5f6
+>>> board.push e7f8
+>>> board.push f1e1
+>>> board.push d8e8
+>>> board.push e1e4
+>>> board.push d4c5
+>>> board.push c2a4
+>>> board.push c7c6
+>>> board.push e4e3
+>>> board.push a6c7
+>>> board.push e5g6
+>>> board.push d6e4
+>>> board.push e3e4
+>>> board.push c7e6
+>>> board.push g6f8
+>>> board.push e8d8
+>>> board.push e4e6
+>>> board.push h5f3
+>>> board.push f6f7
+>>> board.push g8h8
+>>> board.push f8g6
+>>> board.push h8g8
+>>> board.push e6f6
+>>> board.push c5d4
+>>> board.push d5c6
+>>> board.push b7b6
+>>> board.push f7f8q
+>>> board.push g8f8
+>>> board.push f6f8
+>>> board.push d8c7
+>>> board.push f8a8
+>>> board.push c7d6
+>>> board.push a8a7
+>>> board.push b6b5
+>>> board.push a4b5
+>>> board.push d4e3
+>>> board.push d2e3
+>>> go wtime 77600 btime 77600 winc 2000 binc 2000
+... searching best move
+... None => -10000
+... push move

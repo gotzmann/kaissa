@@ -34,6 +34,7 @@ def command(msg: str, board: chess.Board, depth: int):
 
     # Game started and we play whites
     if msg == "position startpos":
+        log(f"... clear board")
         board.clear()
         return
 
@@ -43,7 +44,7 @@ def command(msg: str, board: chess.Board, depth: int):
         board.clear()
         board.set_fen(chess.STARTING_FEN)
         for move in moves:
-            log(f">>> board.push {move}")
+            log(f"... board.push {move}")
             board.push(chess.Move.from_uci(move))
         return
 
@@ -56,10 +57,10 @@ def command(msg: str, board: chess.Board, depth: int):
         #_move = next_move(depth, board)
         #moves = list(board.legal_moves)
         #move = random.choice(moves)
-        log(f"... searching best move")
+        log(f"... searching with depth {depth}")
         score, move = search(board, board.turn, depth, returnMove = True)        
-        log(f"... {move} => {score}")
-        log(f"... push move")
+        #log(f"... {move} => {score}")
+        log(f"... push move {move} => {score}")
         board.push(move)
         #print(f"bestmove {_move}")
         log(f"<<< bestmove {move}")
