@@ -35,25 +35,14 @@ positionWeights = [
 # The core of the chess engine - evaluation function
 # Calculate simple one using sum of material and positional scores
 
-    # TODO Current Player PoV !!!
-    # https://www.researchgate.net/publication/262672371_A_Comparative_Study_of_Game_Tree_Searching_Methods
-    # evaluate leaf gamePositionition from
-    # current player’s standpoint
-
 
 def evaluate(board: chess.Board, turn: bool):
-
-#    print("\n************************************************************")
-#    for square in chess.SQUARES:
-#        print (square, chess.SQUARE_NAMES[square], positionWeights[square])
-#    sys.exit()    
-#    print("\n************************************************************")
     
     score = 0
 
     # The board already applied the move so we should use 
     # color of "previous" turn to evaluate score properly
-    #turn = board.turn
+    # turn = board.turn
     
     # Iterate over all 64 squares of board    
     for square in chess.SQUARES: 
@@ -63,24 +52,15 @@ def evaluate(board: chess.Board, turn: bool):
         if not piece: continue
             
         # Calculate material and positional score            
-        #if board.color_at(square) != board.turn:
         if board.color_at(square) == chess.WHITE:
-#        if board.color_at(square) == turn:        
             score += pieceWeights[piece]
             score += positionWeights[square]                
         else:    
             score -= pieceWeights[piece]
             score -= positionWeights[square]
 
-    #score = -score if turn == chess.BLACK else score
     if turn == chess.BLACK:
         score = -score
-    
-    #color = "WHITE" if turn == chess.WHITE else "BLACK"
-    #print("\n-- EVAL", color, "-")
-    #print(board)
-    #print("---------------")
-    #print("SCORE =>", score)   
-                
+                    
     return score                        
     

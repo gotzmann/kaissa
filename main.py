@@ -44,6 +44,12 @@ moves = [
     chess.Move.from_uci("c1f4"),
 ]
 moves = []
+moves = [ 
+    chess.Move.from_uci("d2d4"),
+    chess.Move.from_uci("b8c6"),
+    chess.Move.from_uci("c1f4"),
+]
+#moves = []
 
 while board.ply() < maxPlies:
 
@@ -72,7 +78,7 @@ while board.ply() < maxPlies:
 
     if board.ply() < len(moves):
         score = count = 0
-        move = moves[ply]        
+        move = moves[board.ply()]        
     else:    
         #search.best_move = None
         #score = search.negamax(board, defaultDepth, -10000)    

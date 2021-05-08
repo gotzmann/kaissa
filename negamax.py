@@ -6,29 +6,13 @@ from evaluate import evaluate
 #import psutil
 
 count = 0
-#best_move = chess.Move.from_uci("a2a3")
-#best_move = None
-#temp_move = None
 
-#bestMove = None
-
-#def negamax(board: chess.Board, depth: int, max: int):
 def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta: int = 10000, returnMove: bool = False, returnCount: bool = False, tree: str = ""):
 
     # Lets count all nested calls for search within current move
     global count
     count = 0 if returnCount else count + 1    
-    #tempBestMove = None
-    
-    #global best_move, temp_move
 
-    #global count
-    #count += 1
-
-    # TODO Current Player PoV !!!
-    # https://www.researchgate.net/publication/262672371_A_Comparative_Study_of_Game_Tree_Searching_Methods
-    # evaluate leaf gamePositionition from
-    # current player’s standpoint
     #if depth == 0 or gameIsOver???:               
     if depth == 0:               
 
@@ -42,22 +26,11 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
 
         return evaluate(board, turn)
 
-    #max = -10000 # -Infinity
-    #best_move = None        
-    #process = psutil.Process(os.getpid())
-    #mem = round(process.memory_info().rss / 1024 / 1024, 1)
-    #mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    #print(f"--[ {depth} ] | # {count} | {mem} Mb ------------------------------------------")
-    #print(f"--[ {depth} ] | {mem} Mb ------------------------------------------")
-    #print("MEM", mem, "Mb")
-    #print("TOTAL LEGAL MOVES:", len(list(board.legal_moves)))
-    #print([move.uci() for move in board.legal_moves], "=>", len(list(board.legal_moves)))
-
 #    oldAlpha = alpha
     #tempBestSourceSquare = None
     #tempBestTargetSquare = None
     
-    max = -10000
+#    max = -10000
     bestMove = None
 #    turn = board.turn
 
@@ -67,45 +40,13 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
         capturedPiece = board.piece_type_at(move.to_square)        
         if capturedPiece == chess.KING:
             return 10000 - board.ply()        
+        #print("[ MOVE", move, "]")
+            
+        tree += " > " + move.uci()
 
         board.push(move)
-        #new_score, new_move = search(board, depth-1, best_score, best_move)        
-        #new_score, new_move = search(board, depth-1, -10000, best_move)        
-        #new_score = -new_score
-                      
-        #// return mating score if king has been captured
-        #if((capturedPiece & 7) == 3) return 10000 - ply; // mate in "ply"
-
-        #score, _ = search(copy.deepcopy(board), depth-1, max)        
-        #score = negamax(copy.deepcopy(board), depth-1, max)
-        #score = negamax(board, depth-1, max)
-
-        #score = -search(board, depth-1, -beta, -alpha)
-        
-        # https://github.com/aaron-hanson/negamax-alpha-beta/blob/master/index.js
-
-        #sideChanged = 1 if board.turn == turn else -1
-        # Do not inverse score for the first search where moving side stays same
-#        if returnMove:
-#            sideChanged = 1
-#        else:    
-#            sideChanged = -1
-
-#        score = sideChanged * search(
-#            board, 
-#            turn,
-#            depth-1, 
-#            sideChanged * alpha, 
-#            sideChanged * beta
-#        )
-
-        tree += " > " + move.uci()
-        #score = sideChanged * search(board, turn, depth-1, -beta, -alpha, tree = tree)
-        #score = -search(board, turn, depth-1, -beta, -alpha, tree = tree)
-        #score = sideChanged * search(board, turn, depth-1, sideChanged * alpha, sideChanged * beta, tree = tree)
-        #score = -search(board, turn, depth-1, -beta, -alpha, tree = tree)
-#        score = sideChanged * search(board, turn, depth-1, -beta, -alpha, tree = tree)
         score = -search(board, not turn, depth-1, -beta, -alpha, tree = tree)
+        board.pop()            
         
 #        print("\n---------------")   
 #        print(f"DEPTH {depth-1}", "WHITE" if board.turn else "BLACK", move, "=>", evaluate(board, turn))
@@ -113,21 +54,36 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
 #        print(board)
 #        print("---------------")           
 
-        #bestMove = move
+        if score > alpha: 
 
-        if score > max: 
-            max = score
-            bestMove = move            
-            #tempBestMove = move
+#            alpha = score
+#            bestMove = move   
 
-            if returnMove:
-                print("\n---------------")   
-                print(f"MAX", "WHITE" if not board.turn else "BLACK", move, "=>", evaluate(board, turn))
-                print("---------------")   
-                print(board)
-                print("---------------")   
 
-        board.pop()            
+            if score >= beta: 
+                #return beta
+                if returnMove and returnCount:   
+                    return beta, bestMove, count
+                elif returnMove:
+                    return beta, bestMove
+                else:
+                    return beta
+
+            alpha = score
+            bestMove = move   
+                                  
+#        if score > max: 
+#            max = score
+#            bestMove = move                        
+
+            #if returnMove:
+            #    print("\n---------------")                   
+            #    print(f"MAX", "WHITE" if not board.turn else "BLACK", move, "=>", max)
+            #    print("---------------")   
+            #    print(board)
+            #    print("---------------")   
+
+        
 
 
         # adjust the search window
@@ -150,13 +106,21 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
 #    if alpha != oldAlpha:
 #       bestMove = tempBestMove
     
-    if returnMove and returnCount:
-        return max, bestMove, count
-    elif returnMove:
-        return max, bestMove
-    else:    
-        return max
+#    if returnMove and returnCount:
+#        return max, bestMove, count
+#    elif returnMove:
+#        return max, bestMove
+#    else:    
+#        return max
     #return max
+
+    if returnMove and returnCount:
+        return alpha, bestMove, count
+    elif returnMove:
+        return alpha, bestMove
+    else:    
+        return alpha
+
 
 
 #        print(depth, "|", "WHITE" if not board.turn else "BLACK", "|", move, "|", score)
