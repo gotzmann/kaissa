@@ -1,8 +1,9 @@
 __pycache__
 kaissa64.log
-out
-out.old
-out.pypy
+/out
+/out.*
+/dist
+/build
 
 # Prerequisites
 *.d

@@ -1,6 +1,5 @@
 import chess
 import random
-#from search import search
 from negamax import search
 from log import log
 
@@ -11,8 +10,6 @@ def command(msg: str, board: chess.Board, depth: int):
     Accept UCI commands and respond.
     The board state is also updated.
     """
-
-    #log(f">>> {msg}")
 
     if msg == "quit":
         log("\n[KAISSA64] Session was ended...")
@@ -44,7 +41,7 @@ def command(msg: str, board: chess.Board, depth: int):
         board.clear()
         board.set_fen(chess.STARTING_FEN)
         for move in moves:
-            log(f"... board.push {move}")
+            #log(f"... board.push {move}")
             board.push(chess.Move.from_uci(move))
         return
 
@@ -54,15 +51,10 @@ def command(msg: str, board: chess.Board, depth: int):
         return
 
     if msg[0:2] == "go":
-        #_move = next_move(depth, board)
-        #moves = list(board.legal_moves)
-        #move = random.choice(moves)
         log(f"... searching with depth {depth}")
         score, move = search(board, board.turn, depth, returnMove = True)        
-        #log(f"... {move} => {score}")
         log(f"... push move {move} => {score}")
         board.push(move)
-        #print(f"bestmove {_move}")
         log(f"<<< bestmove {move}")
         print(f"bestmove {move}")        
         return        
