@@ -29,12 +29,6 @@ def command(msg: str, board: chess.Board, depth: int):
         # TODO ...
         return
 
-    # Game started and we play whites
-    if msg == "position startpos":
-        log(f"... clear board")
-        board.clear()
-        return
-
     # TODO Use chess.parse_uci()
     if "position startpos moves" in msg:
         moves = msg.split(" ")[3:]
@@ -45,10 +39,24 @@ def command(msg: str, board: chess.Board, depth: int):
             board.push(chess.Move.from_uci(move))
         return
 
+    # Game started and we play whites
+    if msg == "position startpos":
+        log(f"... clear board")
+        board.clear()
+        board.set_fen(chess.STARTING_FEN)
+        return
+
     if "position fen" in msg:
         fen = " ".join(msg.split(" ")[2:])
         board.set_fen(fen)
-        return
+        # TODO Duplcation with [go] part
+        log(f"... searching with depth {depth}")
+        score, move = search(board, board.turn, depth, returnMove = True)        
+        log(f"... push move {move} => {score}")
+        board.push(move)
+        log(f"<<< bestmove {move}")
+        print(f"bestmove {move}")        
+        return                        
 
     if msg[0:2] == "go":
         log(f"... searching with depth {depth}")

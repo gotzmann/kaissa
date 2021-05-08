@@ -4,6 +4,7 @@ kaissa64.log
 /out.*
 /dist
 /build
+*.spec
 
 # Prerequisites
 *.d
