@@ -1,5 +1,6 @@
 <div id="board"></div>
 <style>
+  #board { padding: 50px; }
   .highlight { box-shadow: inset 0px 0px 3px 3px #ff3300; }
   .mate { box-shadow: inset 0px 0px 5px 5px red; }
 </style>
@@ -114,11 +115,13 @@
    ==============================
   \******************************/
 
-  //var count = 0
+  var count = 0
 
   // search board position for the best move
   function search(sideToMove, alpha, beta, depth, validate = false, hide = 0, returnMove = false) {
-    //count++
+
+    if (returnMove) count = 0; else count++
+    
     // we are in the leaf node
     if (depth == 0) {
       // static evaluation score
@@ -209,7 +212,7 @@
               if(pieceType < 3 && !(stepVector & 7) != !capturedPiece) break;
               
               // return mating score if king has been captured
-/////              if((capturedPiece & 7) == 3) return 10000 - ply; // mate in "ply"
+              if((capturedPiece & 7) == 3) return 10000 - ply; // mate in "ply"
               
               // validate moves
               if (validate) pseudoLegalMoves.push([sourceSquare, targetSquare]);
@@ -258,17 +261,20 @@
               bestTargetSquare = targetSquare;
 
               // gotz
-//              if (score > max) {
-//                max = score
+              if (score > max) {
+                max = score
                 //bestSourceSquare = sourceSquare
                 //bestTargetSquare = targetSquare
-                //tempBestSourceSquare = sourceSquare;
-                //tempBestTargetSquare = targetSquare;
-//              }  
+                tempBestSourceSquare = sourceSquare;
+                tempBestTargetSquare = targetSquare;
+                if (returnMove) {
+                  console.log("MAX |", uci(sourceSquare, targetSquare), "=>", max)
+                }
+              }  
 
               
               // Found better move (PV node)
-              if(score > alpha) {
+/////              if(score > alpha) {
                 // move is good enough to drop the branch (fail-high node)
 /////                if(score >= beta) {
                   //return beta;
@@ -279,11 +285,11 @@
 /////                }    
                 
                 // update alpha value
-                alpha = score;
+/////                alpha = score;
 
                 // save best move in given branch
-                tempBestSourceSquare = sourceSquare;
-                tempBestTargetSquare = targetSquare;
+/////                tempBestSourceSquare = sourceSquare;
+/////                tempBestTargetSquare = targetSquare;
 
                 //goz
 /////                bestSourceSquare = sourceSquare;
@@ -292,7 +298,7 @@
                 // gotz
                 //bestSourceSquare = tempBestSourceSquare;
                 //bestTargetSquare = tempBestTargetSquare;
-              }   
+/////              }   
                             
               // fake capture for non-slider pieces
               capturedPiece += pieceType < 5;
@@ -309,18 +315,25 @@
     }
     
     // associate best score with best move
-    if(alpha != oldAlpha) {
+/////    if(alpha != oldAlpha) {
         bestSourceSquare = tempBestSourceSquare;
         bestTargetSquare = tempBestTargetSquare;
-    } 
+/////    } 
 
     // didn't find a better move (fail-low node)
 /////    return alpha;
-
+/*
     if (returnMove) 
       return alpha, bestSourceSquare, bestTargetSquare
     else
       return alpha
+*/
+    if (returnMove) 
+      //return max, bestSourceSquare, bestTargetSquare
+      return { "score": max, "source": bestSourceSquare, "target": bestTargetSquare }
+    else
+      return max
+      
   }
 
 
@@ -426,9 +439,17 @@
   function makeEngineMove(depth) {
     // search position
     /////var score = search(sideToMove, -10000, 10000, depth, false, true);
-    var score, source, target = search(sideToMove, -10000, 10000, depth, false, true, true);
-    bestTargetSquare = source
-    bestTargetSquare = target
+    //score, source, target = search(sideToMove, -10000, 10000, depth, false, true, true);
+    var ret = search(sideToMove, -10000, 10000, depth, false, true, true);
+
+    source = ret.source
+    target = ret.target
+    score = ret.score
+    bestTargetSquare = ret.source
+    bestTargetSquare = ret.target
+    //console.log(score, source, target)
+    
+    console.log("BEST #", ply, "|", uci(source, target), "=>", score)
 
     // Black checkmate detection
     if(score <= -9999) {
@@ -563,19 +584,19 @@
   // ------------------------------------------------------------------------------------------------------------
   // gotz offline eval
 
-  function uci() {
-    files = "ABCDEFGH"
-    //rows  = "12345678"
+  function uci(source = null, target = null) {
+
+    if (!source) source = bestSourceSquare
+    if (!target) target = bestTargetSquare
+
+    files = "ABCDEFGH"    
     rows  = "87654321"
     color = (24 - sideToMove) == 8 ? "WHITE" : "BLACK"
     pieceName = [ "", "PAWN", "PAWN", "KING", "KNIGHT", "BISHOP", "ROOK", "QUEEN" ]
-//console.log(bestSourceSquare, bestTargetSquare)
-    s = files[bestSourceSquare - Math.floor(bestSourceSquare / 16) * 16] + rows[Math.floor(bestSourceSquare / 16)] 
-    t = files[bestTargetSquare - Math.floor(bestTargetSquare / 16) * 16] + rows[Math.floor(bestTargetSquare / 16)]
 
-//   	color, "MOVE", depth-1, "|", pieceName[piece & 7], 
-//   	files[sourceSquare - Math.floor(sourceSquare / 16) * 16] + rows[Math.floor(sourceSquare / 16)], 
-//   	files[targetSquare - Math.floor(targetSquare / 16) * 16] + rows[Math.floor(targetSquare / 16)], 
+    //console.log(bestSourceSquare, bestTargetSquare)
+    s = files[source - Math.floor(source / 16) * 16] + rows[Math.floor(source / 16)] 
+    t = files[target - Math.floor(target / 16) * 16] + rows[Math.floor(target / 16)]
 
     return s + t
   }
@@ -593,8 +614,7 @@
     ply++        
     //for (i=0;i<1000;i++){console.log(i)}    
     makeEngineMove(searchDepth)    
-    drawBoard()
-    console.log(uci())
+    drawBoard()    
   }  
   
   console.log("Finishing...")

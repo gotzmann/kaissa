@@ -2,6 +2,7 @@ __pycache__
 kaissa64.log
 out
 out.old
+out.pypy
 
 # Prerequisites
 *.d

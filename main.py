@@ -11,6 +11,9 @@ from negamax import search
 #import resource
 #import os
 #import psutil
+import time
+
+start = time.time()
 
 #process = psutil.Process(os.getpid())
 #mem = round(process.memory_info().rss / 1024 / 1024, 2)
@@ -23,7 +26,7 @@ defaultDepth = 3
 maxPlies = 6
 board = chess.Board()
 #board.turn = chess.WHITE
-ply = 0
+
 moves = [ 
     chess.Move.from_uci("e2e4"),
     chess.Move.from_uci("d7d5"),
@@ -35,8 +38,14 @@ moves = [
     chess.Move.from_uci("d7d5"),
 ]
 moves = []
+moves = [ 
+    chess.Move.from_uci("d2d4"),
+    chess.Move.from_uci("b8c6"),
+    chess.Move.from_uci("c1f4"),
+]
+moves = []
 
-while ply < maxPlies:
+while board.ply() < maxPlies:
 
     if board.is_game_over():
         print("===============")
@@ -61,7 +70,7 @@ while ply < maxPlies:
     
     print("\n[", len(list(board.legal_moves)), "] =>", [ move.uci() for move in board.legal_moves ])
 
-    if ply < len(moves):
+    if board.ply() < len(moves):
         score = count = 0
         move = moves[ply]        
     else:    
@@ -74,12 +83,11 @@ while ply < maxPlies:
     #board.push(search.best_move)   
     board.push(move)   
     tree += move.uci() + " | "
-    ply += 1
     
     print("\n===============")    
     #print(f"# {ply} => {search.best_move} | {score}")
     #print(f"# {ply} => {search.bestMove} | {score}")
-    print(f"MOVE {ply} => {move} of {count} => {score}")
+    print(f"MOVE {board.ply()} => {move} of {count} => {score}")
     print("===============")    
     print(board)
     print("===============")        
@@ -88,3 +96,6 @@ while ply < maxPlies:
 #mem2 = process.memory_info().rss / 1024 / 1024
 #mem2 = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 #print("MEM2", mem2, "Mb")
+
+end = time.time()
+print("\nTIME", round(end - start, 2), "sec")

@@ -63,13 +63,10 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
 
     for move in board.legal_moves:                
 
-        # if ((capturedPiece & 7) == 3) return 10000 - ply; // mate in "ply"
-#        capturedPiece = board.piece_type_at(move.to_square)
-        #color = board.color_at(square)
-#        if capturedPiece == chess.KING:
-#            return 10000
-
-        #print(move, " | ", evaluate(board))        
+        # TODO Mate in ply! Move to eval function as special heuristic?        
+        capturedPiece = board.piece_type_at(move.to_square)        
+        if capturedPiece == chess.KING:
+            return 10000 - board.ply()        
 
         board.push(move)
         #new_score, new_move = search(board, depth-1, best_score, best_move)        
@@ -108,15 +105,13 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
         #score = sideChanged * search(board, turn, depth-1, sideChanged * alpha, sideChanged * beta, tree = tree)
         #score = -search(board, turn, depth-1, -beta, -alpha, tree = tree)
 #        score = sideChanged * search(board, turn, depth-1, -beta, -alpha, tree = tree)
-        score = -search(board, turn, depth-1, tree = tree)
+        score = -search(board, not turn, depth-1, -beta, -alpha, tree = tree)
         
 #        print("\n---------------")   
 #        print(f"DEPTH {depth-1}", "WHITE" if board.turn else "BLACK", move, "=>", evaluate(board, turn))
 #        print("---------------")   
 #        print(board)
-#        print("---------------")   
-
-        board.pop()    
+#        print("---------------")           
 
         #bestMove = move
 
@@ -124,6 +119,16 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
             max = score
             bestMove = move            
             #tempBestMove = move
+
+            if returnMove:
+                print("\n---------------")   
+                print(f"MAX", "WHITE" if not board.turn else "BLACK", move, "=>", evaluate(board, turn))
+                print("---------------")   
+                print(board)
+                print("---------------")   
+
+        board.pop()            
+
 
         # adjust the search window
         #if score > alpha:
