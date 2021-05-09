@@ -37,8 +37,8 @@ positionWeights = [
 def evaluate(board: chess.Board, turn: bool):
 
     # TODO Mate in ply! Move to eval function as special heuristic?            
-    if board.is_check():
-        print("=== EVAL IN CHECK :", 10000 - board.ply(), "===")
+    if board.is_checkmate():
+        #print("=== EVAL IN CHECK :", 10000 - board.ply(), "===")
         return 10000 - board.ply()                
     
     score = 0

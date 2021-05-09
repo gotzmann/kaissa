@@ -12,7 +12,7 @@ count = 0
 # TODO Implement time constraints to avoid "Black forfeits on time"
 
 def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta: int = 10000, returnMove: bool = False, returnCount: bool = False, tree: str = ""):
-
+    
     # Lets count all nested calls for search within current move
     global count
     count = 0 if returnCount else count + 1    
@@ -23,30 +23,40 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
         return evaluate(board, turn)
 
     bestMove = None
-
+    
     for move in board.legal_moves:                
 
         # TODO Mate in ply! Move to eval function as special heuristic?        
 #        capturedPiece = board.piece_type_at(move.to_square)        
 #        if capturedPiece == chess.KING:
-#            return 10000 - board.ply()                
-            
-        tree += " > " + move.uci()
+#            return 10000 - board.ply()   
 
-        board.push(move)
-
+#        if board.gives_check(move):
+#            score = -(10000 - board.ply())
+#            print("=== GIVES CHECK :", move, "|", score, "===")
+        
+        board.push(move)        
+        treeBefore = tree
+        tree += move.uci() + " > "         
 #        score = -search(board, not turn, depth-1, -beta, -alpha, tree = tree)
         # We should see immediate checks
-        if board.is_check():
-            print("=== MOVE IN CHECK :", move, "===")
-            score = -(10000 - board.ply())
-        else:    
+        if board.is_checkmate():            
+            score = 10000 - board.ply()
+            #if board.ply() < 111:
+            #    score = -(10000 - board.ply())
+            #else:
+                #score = 10000 - board.ply()
+            #if returnMove:
+            #    print("=== MOVE IN IMMEDIATE CHECK :", move, "|", score, "===")
+            #if returnMove:
+            #    print("=== MOVE IN CHECK ", tree, "|", score, "===")
+        else:                
             score = -search(board, not turn, depth-1, -beta, -alpha, tree = tree)
+        tree = treeBefore            
+        board.pop()                            
 
-        board.pop()            
-        
         if score > alpha: 
-
+            #print (tree + move.uci(), "| score > alpha |", score, ">", alpha)
             # TODO Should look for order of later assignments and beta check
             alpha = score
             bestMove = move   

@@ -488,6 +488,7 @@
       // update board view
       drawBoard();
       
+      console.log("bestTargetSquare = ", bestTargetSquare)
       // highlight last move
       document.getElementById(bestTargetSquare).classList.add('highlight');
     }  
@@ -591,8 +592,8 @@
     return s + t
   }
 
-  searchDepth = 3
-  maxPlies = 6
+  searchDepth = 4
+  maxPlies = 0
   ply = 0
 
   //score = search(sideToMove, -10000, 10000, depth);
@@ -600,7 +601,7 @@
 
   console.log("Starting...")
 
-  while (ply < maxPlies) {
+  while (!maxPlies || ply < maxPlies) {
     ply++        
     //for (i=0;i<1000;i++){console.log(i)}    
     makeEngineMove(searchDepth)    

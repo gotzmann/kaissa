@@ -22,8 +22,13 @@ start = time.time()
 #mem1 = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 #print("MEM1", round(mem, 2), "Mb")
 
+defaultDepth = 4
+if len(sys.argv) > 1:
+    defaultDepth = int(sys.argv[1])
+#print(defaultDepth)
+#sys.exit()
+
 tree = ""
-defaultDepth = 3
 maxPlies = 0 # zero for unlimited moves
 movesPerSecond = 0
 board = chess.Board()
@@ -94,7 +99,7 @@ moves = [ chess.Move.from_uci(move) for move in moves ]
 
 #    chess.Move.from_uci("e2e4"),
 #]
-
+moves = []
 
 if len(moves):
     print("PERFORM", len(moves), "plies from MOVES list")
@@ -103,7 +108,8 @@ while not maxPlies or board.ply() < maxPlies:
 
     if board.is_game_over():
         print("===============")
-        print("   GAME OVER   ")        
+        print("   GAME OVER   ")
+        print("     ", board.outcome().result())        
         print("===============")
         break        
     
@@ -116,7 +122,8 @@ while not maxPlies or board.ply() < maxPlies:
         score, move, count = search(board, board.turn, defaultDepth, -10000, 10000, returnMove = True, returnCount = True, tree = tree)    
 
     board.push(move)   
-    tree += move.uci() + " | "
+    #tree += move.uci() + " | "
+    tree = ">> "
     movesPerSecond += count
     
     print("\n===============")    
@@ -126,7 +133,7 @@ while not maxPlies or board.ply() < maxPlies:
     print("===============")        
 
     # Check for 3-fold rule
-    # TODO Score hash of FEN to speed up things
+    # TODO Store hash of FEN strings to speed up things
     boards.append(copy.copy(board))
     if len(boards) > 8:
         folds = 1

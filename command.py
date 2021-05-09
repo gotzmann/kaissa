@@ -5,7 +5,7 @@ from log import log
 
 # TODO Teach engine to play both white and black sides
 
-def command(msg: str, board: chess.Board, depth: int):    
+def command(msg: str, board: chess.Board, defaultDepth: int):    
     """
     Accept UCI commands and respond.
     The board state is also updated.
@@ -50,8 +50,9 @@ def command(msg: str, board: chess.Board, depth: int):
         fen = " ".join(msg.split(" ")[2:])
         board.set_fen(fen)
         # TODO Duplcation with [go] part
-        log(f"... searching with depth {depth}")
-        score, move = search(board, board.turn, depth, returnMove = True)        
+        log(f"... searching with depth {defaultDepth}")
+        #score, move = search(board, board.turn, depth, returnMove = True)        
+        score, move, count = search(board, board.turn, defaultDepth, -10000, 10000, returnMove = True, returnCount = True)    
         log(f"... push move {move} => {score}")
         board.push(move)
         log(f"<<< bestmove {move}")
@@ -59,8 +60,9 @@ def command(msg: str, board: chess.Board, depth: int):
         return                        
 
     if msg[0:2] == "go":
-        log(f"... searching with depth {depth}")
-        score, move = search(board, board.turn, depth, returnMove = True)        
+        log(f"... searching with depth {defaultDepth}")
+        #score, move = search(board, board.turn, depth, returnMove = True)        
+        score, move, count = search(board, board.turn, defaultDepth, -10000, 10000, returnMove = True, returnCount = True)    
         log(f"... push move {move} => {score}")
         board.push(move)
         log(f"<<< bestmove {move}")
