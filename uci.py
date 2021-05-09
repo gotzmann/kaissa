@@ -8,7 +8,7 @@ import time
 
 start = time.time()
 
-defaultDepth = 1
+defaultDepth = 5
 board = chess.Board()
 
 log("\n[KAISSA64] Start new session...\n")

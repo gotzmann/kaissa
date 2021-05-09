@@ -2,7 +2,7 @@ import chess
 import random
 import sys
 
-# TODO Evaluate board both for blacks and whites
+# TODO Evaluate castling and mates properly
 
 # Relative values to evaluate the material score of the position
 
@@ -14,8 +14,6 @@ pieceWeights = {
     chess.QUEEN:  900,
     chess.KING:   0,
 }
-
-# TODO Do we need to mirror list of positions vertically?
 
 positionWeights = [
 #   a1  b1  c1  d1  e1  f1  g1  h1
@@ -34,7 +32,6 @@ positionWeights = [
 
 # The core of the chess engine - evaluation function
 # Calculate simple one using sum of material and positional scores
-
 
 def evaluate(board: chess.Board, turn: bool):
     
