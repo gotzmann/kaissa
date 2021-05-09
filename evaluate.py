@@ -3,6 +3,7 @@ import random
 import sys
 
 # TODO Evaluate castling and mates properly
+# TODO Do know about promotion!
 
 # Relative values to evaluate the material score of the position
 
@@ -34,6 +35,11 @@ positionWeights = [
 # Calculate simple one using sum of material and positional scores
 
 def evaluate(board: chess.Board, turn: bool):
+
+    # TODO Mate in ply! Move to eval function as special heuristic?            
+    if board.is_check():
+        print("=== EVAL IN CHECK :", 10000 - board.ply(), "===")
+        return 10000 - board.ply()                
     
     score = 0
 
