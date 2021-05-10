@@ -3,7 +3,8 @@ import random
 import sys
 import argparse
 #from negamax import search
-from parallel import search, count
+#from parallel import search, count
+import parallel
 #import resource
 #import os
 #import psutil
@@ -51,7 +52,8 @@ def main():
             move = moves[board.ply()]        
         else:    
             ###################score, move, count = search(board, board.turn, defaultDepth, -10000, 10000, returnMove = True, returnCount = True, tree = tree)    
-            move, score, count = search(board, defaultDepth, -10000, 10000)    
+            #move, score, count = search(board, defaultDepth, -10000, 10000)    
+            move, score, count = parallel.search(board, defaultDepth, -10000, 10000)    
 
         board.push(move)   
         #tree += move.uci() + " | "
@@ -59,8 +61,9 @@ def main():
         movesPerSecond += count
 
         print("\n===============")    
-        print(f"MOVE {board.ply()} => {move} of {count} => {score}")
+        #print(f"MOVE {board.ply()} => {move} of {count} => {score}")
         #print(f"MOVE {board.ply()} => {move} of {count}")
+        print(f"MOVE {board.ply()} => {move} of {parallel.count} => {score}")
         print("===============")    
         print(board)
         print("===============")        
