@@ -4,6 +4,7 @@ from evaluate import evaluate
 #import copy
 #import os
 #import psutil
+from multiprocessing import Pool
 
 count = 0
 
@@ -23,8 +24,8 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
         return evaluate(board, turn)
 
     bestMove = None
-    
-    for move in board.legal_moves:                
+
+    for move in board.legal_moves:      
 
         # TODO Mate in ply! Move to eval function as special heuristic?        
 #        capturedPiece = board.piece_type_at(move.to_square)        
