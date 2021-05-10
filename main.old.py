@@ -10,7 +10,6 @@ from parallel import search
 import time
 import copy
 from multiprocessing import Pool
-import workers
 
 # TODO Compute Moves Per Second metric to understand the average performance
 # TODO no castling
@@ -113,56 +112,23 @@ def choose(result):
 
 def paramain(move):
     print("PARA")
-    print(board.push(move))  
-    return 666  
+    #print(board.push(move))  
+    return move
 
 print("NAME |", __name__)
 
 # Child processes have names: __mp_main__
 if __name__ == "__main__":
 
-    print("IF MAIN")
-    
     pool = Pool()
-#    results = []
-
-    #for move in board.legal_moves:   
-    #    print(move) 
-    #    newBoard = copy.deepcopy(board)
-    #    newBoard.push(move)
-        #args = (newBoard)
-    #results.append({ 
-    #    "move": move.uci(), 
-        #"score": pool.apply_async(para, args = (newBoard), callback = choose),
-    #    "score": pool.map(para, board.legal_moves),
-    #}) 
 
     #res = pool.map(workers.para, board.legal_moves)
-    res = pool.map(workers.para, [1, 2, 3])
     print(res.get())
 
     pool.close()
     pool.join()
 
-#    for result in results:
-#        result["score"].wait()
-    print("SLEEP 10")
-    time.sleep(10)
     print(res.get())
-#    for result in results:
-#        print(result["move"], "=>", result["score"].get())
-
-    print("FINALLY")
-#    print(results)
-
-#    pool.join()    
-    print("MAIN SLEEP 1 AND DIE")
-    #sys.exit()
-
-print("SLEEP 1 AND DIE")
-time.sleep(1)
-#sys.exit()
-
 
 if len(moves):
     print("PERFORM", len(moves), "plies from MOVES list")

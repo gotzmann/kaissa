@@ -181,6 +181,11 @@ maxPlies = 5
 [TIME] 89.74 sec
 [MPS] 19,034 moves/sec
 
+--- Python with POOL()
+
+[TIME] 50.16 sec
+[MPS] 0 moves/sec
+
 ----------------------------------------------------------------
 
 --- PYPY 3.7 + each terminal node WITH game end analisis
@@ -193,6 +198,11 @@ maxPlies = 5
 [TIME] 12.18 sec
 [MPS] 128,273 moves/sec
 
+--- PyPy with POOL()
+
+[TIME] 25.77 sec
+[MPS] 0 moves/sec
+
 ----------------------------------------------------------------
 
 --- PYINSTALLER WO game end analisis
@@ -204,4 +214,6 @@ maxPlies = 5
 
 [TIME] 80.48 sec
 [MPS] 19413 moves/sec
+
+----------------------------------------------------------------
 

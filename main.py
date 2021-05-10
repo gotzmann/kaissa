@@ -3,7 +3,7 @@ import random
 import sys
 import argparse
 #from negamax import search
-from parallel import search
+from parallel import search, count
 #import resource
 #import os
 #import psutil
@@ -17,83 +17,81 @@ from multiprocessing import Pool
 # TODO no 3 fold repetition
 # TODO no 50 rule move count
 
-start = time.time()
+def main():    
+
+    global count
+
+    start = time.time()
+
+    maxPlies = 5 # zero for unlimited moves
+    defaultDepth = 5
+    if len(sys.argv) > 1:
+        defaultDepth = int(sys.argv[1])
+
+    tree = ""
+    movesPerSecond = 0
+    board = chess.Board()
+    boards = [] # we should check for 3-fold repetition and similar things
+
+    moves = []
+        
+    while not maxPlies or board.ply() < maxPlies:
+
+        if board.is_game_over():
+            print("===============")
+            print("   GAME OVER   ")
+            print("     ", board.outcome().result())        
+            print("===============")
+            break        
+
+        print("\n[", len(list(board.legal_moves)), "] =>", [ move.uci() for move in board.legal_moves ])
+
+        if board.ply() < len(moves):
+            score = count = 0
+            move = moves[board.ply()]        
+        else:    
+            ###################score, move, count = search(board, board.turn, defaultDepth, -10000, 10000, returnMove = True, returnCount = True, tree = tree)    
+            move, score, count = search(board, defaultDepth, -10000, 10000)    
+
+        board.push(move)   
+        #tree += move.uci() + " | "
+        tree = ">> "
+        movesPerSecond += count
+
+        print("\n===============")    
+        print(f"MOVE {board.ply()} => {move} of {count} => {score}")
+        #print(f"MOVE {board.ply()} => {move} of {count}")
+        print("===============")    
+        print(board)
+        print("===============")        
+
+        # Check for 3-fold rule
+        # TODO Store hash of FEN strings to speed up things
+        boards.append(copy.copy(board))
+        if len(boards) > 8:
+            folds = 1
+            #for i, b in enumerate(boards[::-1]):
+            # Traverse over all previous board states from the one before the current and calculate repetitions
+            for b in boards[-2:-10:-1]:
+                if board.board_fen() == b.board_fen():
+                    folds += 1
+
+            if folds == 3:
+                print("===============")
+                print("    3-FOLD!    ")        
+                print("===============")
+                break
+
+    end = time.time()
+    execTime = end - start
+
+    print("\n[TIME]", round(execTime, 2), "sec")
+    print("[MPS]", round(movesPerSecond / execTime), "moves/sec")
+
+# Child processes have names: __mp_main__
+if __name__ == "__main__": main()
 
 #process = psutil.Process(os.getpid())
 #mem = round(process.memory_info().rss / 1024 / 1024, 2)
 #mem1 = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 #print("MEM1", round(mem, 2), "Mb")
-
-defaultDepth = 4
-if len(sys.argv) > 1:
-    defaultDepth = int(sys.argv[1])
-#print(defaultDepth)
-#sys.exit()
-
-tree = ""
-maxPlies = 0 # zero for unlimited moves
-movesPerSecond = 0
-board = chess.Board()
-boards = [] # we should check for 3-fold repetition and similar things
-
-# Test multiprocessing
-
-def choose(result):
-    print("=== CHOOSE ===")
-    print(result)
-    print("=== \CHOOSE ===")
-
-def para(move):
-    print("PARA", move)
-#    print(board.push(move))  
-    return move
-
-print("NAME |", __name__)
-
-# Child processes have names: __mp_main__
-if __name__ == "__main__":
-
-#    print("IF MAIN")
-    
-    moves = list(board.legal_moves)
-    pool = Pool(len(moves))
-#    results = []
-
-    #for move in board.legal_moves:   
-    #    print(move) 
-    #    newBoard = copy.deepcopy(board)
-    #    newBoard.push(move)
-        #args = (newBoard)
-    #results.append({ 
-    #    "move": move.uci(), 
-        #"score": pool.apply_async(para, args = (newBoard), callback = choose),
-    #    "score": pool.map(para, board.legal_moves),
-    #}) 
-
-    #res = pool.map(workers.para, board.legal_moves)
-    ###res = pool.map_async(paramain, [1, 2, 3])
-    res = pool.map_async(para, moves)
-#    print(res.get())
-
-    pool.close()
-    pool.join()
-
-#    for result in results:
-#        result["score"].wait()
-#    print("SLEEP 10")
-#    time.sleep(10)
-    print(res.get())
-#    for result in results:
-#        print(result["move"], "=>", result["score"].get())
-
-#    print("FINALLY")
-#    print(results)
-
-#    pool.join()    
-#    print("MAIN SLEEP 1 AND DIE")
-    #sys.exit()
-
-#print("SLEEP 1 AND DIE")
-#time.sleep(1)
-#sys.exit()
-
