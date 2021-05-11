@@ -3,7 +3,7 @@ import chess
 import sys
 #import argparse
 #from negamax import search
-from parallel import search
+from parallel import search, startWorkers, stopWorkers
 #import parallel
 #import resource
 #import os
@@ -17,9 +17,11 @@ import copy
 # TODO no 3 fold repetition
 # TODO no 50 rule move count
 
+#print(__name__)
+
 def main():    
 
-    global count
+    startWorkers() # Init multiprocessing
 
     start = time.time()
 
@@ -86,6 +88,8 @@ def main():
 
     end = time.time()
     execTime = end - start
+
+    stopWorkers()
 
     print("\n[TIME]", round(execTime, 2), "sec")
     print("[MPS]", round(movesPerSecond / execTime), "moves/sec")
