@@ -20,117 +20,57 @@ def search(board: chess.Board, depth: int, alpha: int = -10000, beta: int = 1000
 
     global count; count = 0
 
-  ####  doChess = True
-    cores = 6
-    core = 0
-    tasks = [[] for _ in range(cores)]
-    results = []
-    ###print(tasks)
+    doChess = True
+    procs = 6
+    while doChess:
 
-    # Distribute all moves as tasks for different cores 
-    for move in board.legal_moves:
-        newBoard = copy.copy(board)
-        newBoard.push(move)
-        #result = pool.apply_async(negamax, args = (newBoard, depth-1, -beta, -alpha))    
-        #results.append({ "move": move, "score": result })
-        ###tasks[core].append( (newBoard, depth-1, -beta, -alpha) )
-        tasks[core].append( (newBoard, depth-1, alpha, beta) )
-        #print(core)
-        core = core + 1 if core < cores-1 else 0
-        #print(core)
+        moves = list(board.legal_moves)
+#####        pool = Pool(6) # Use all available CPU cores
+        results = []
+        poolResults = []
+        
+        total = 0
+        for move in moves:
 
-        #print(tasks)    
+            pool = Pool(procs) # Use all available CPU cores
 
-#    print(tasks)
-#    sys.exit()   
+            count = 0
+            while count < procs and total < len(moves):                
+                count += 1
+                total += 1
 
-    # Form [pool] of [tasks] for each core 
-    # Each core will compute dozen moves in the [task] list one by one
-    pool = Pool(cores)
-    for task in tasks:    
-        #result = pool.apply_async(negamax, args = (newBoard, depth-1, -beta, -alpha))  
-        #result = pool.apply_async(map, args = (task))
-        #print("=== TASK\n", task)
-        result = pool.apply_async(mapping, [task])
-        #result = pool.apply_async(mapping, [(1, 2, 3)])    
-        results.append(result)
+                print(count, "OF", total)
+                
+                newBoard = copy.copy(board)
+                newBoard.push(move)
+                result = pool.apply_async(negamax, args = (newBoard, depth-1, -beta, -alpha))    
+                results.append({ "move": move, "score": result })
 
-    pool.close()
-    pool.join() 
+            pool.close()
+            pool.join()
 
-    # Refresh Alpha/Beta depending on previous results
-    ###for result in results:                
-        ###a = result["score"].get()
-        ###if a > alpha: 
-           ### alpha = a
-            ###print("NEW ALPHA", alpha)
-        #if b > beta: beta = b
+            # Refresh Alpha/Beta depending on previous results
+            for result in results:                
+                a = result["score"].get()
+                if a > alpha: 
+                    alpha = a
+                    print("NEW ALPHA", alpha)
+                #if b > beta: beta = b
+
+            if total >= len(moves):
+                doChess = False
+                #break
 
     bestMove = None
     bestScore = -10000
-
-    # Results is the list of best moves from separate [task] lists
-    # Lets choose the Best of the Bests move
     for result in results:            
         #score = -result["score"].get()
-        ###score = -result["score"].get()
-        #move, score = result.get()
-        move, score = result.get()
-        if score > bestScore:
+        score = -result["score"].get()
+        if alpha > bestScore:
             bestScore = score
-            bestMove = move
+            bestMove = result["move"]
 
     return bestMove, bestScore, count
-
- ####   while doChess:
-
-        
-#####        pool = Pool(6) # Use all available CPU cores
-        
-        #poolResults = []
-        
- ####       total = 0
-     ####   for move in moves:
-
-         ####   pool = Pool(procs) # Use all available CPU cores
-
-       ####     count = 0
-           #### while count < procs and total < len(moves):                
-               #### count += 1
-            ####    total += 1
-
-           ####     print(count, "OF", total)
-                
-               #### newBoard = copy.copy(board)
-        ####        newBoard.push(move)
-  ###              result = pool.apply_async(negamax, args = (newBoard, depth-1, -beta, -alpha))    
-     ###           results.append({ "move": move, "score": result })
-
-        ###    pool.close()
-        ###    pool.join()
-
-            # Refresh Alpha/Beta depending on previous results
-      ###      for result in results:                
-         ###       a = result["score"].get()
-            ###    if a > alpha: 
-               ###     alpha = a
-                  ###  print("NEW ALPHA", alpha)
-                #if b > beta: beta = b
-
- ###           if total >= len(moves):
-    ###            doChess = False
-                #break
-
-###    bestMove = None
-   ### bestScore = -10000
-###    for result in results:            
-        #score = -result["score"].get()
-   ###     score = -result["score"].get()
-      ###  if alpha > bestScore:
-         ###   bestScore = score
-            ###bestMove = result["move"]
-
-    ###return bestMove, bestScore, count
 
 
 #def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta: int = 10000, returnMove: bool = False, returnCount: bool = False, tree: str = ""):
@@ -209,7 +149,7 @@ def negamaxOK(board: chess.Board, depth: int, alpha: int, beta: int):
                                           
     return alpha
 
-
+#def negamax(board: chess.Board, depth: int, alpha: int, beta: int, tree: str = ""):             
 def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
 
     # Lets count all nested calls for search within current move
@@ -257,27 +197,3 @@ def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
                 return beta
                                           
     return alpha
-
-
-
-#def negamax(board: chess.Board, depth: int, alpha: int, beta: int, tree: str = ""):             
-#def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
-def mapping(tasks):
-    #print("MAPPING", tasks)
-    bestScore = -10000
-    bestMove = None
-
-    for task in tasks:
-
-        #board: chess.Board, depth: int, alpha: int, beta: int
-        board, depth, alpha, beta = task
-        score = -negamax(board, depth-1, -beta, -alpha)   
-
-        if score > bestScore:
-            bestScore = score
-            bestMove = board.peek()
-            # TODO Change alpha / beta for next moves
- 
-        return bestMove, bestScore
-
-
