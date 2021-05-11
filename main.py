@@ -13,6 +13,7 @@ import copy
 
 # TODO Remove turn parameter for negamax and evaluate functions
 # TODO Compute count correctly
+# TODO Save best computed moves for later? I mean cache the game tree
 
 # TODO Compute Moves Per Second metric to understand the average performance
 # TODO no castling
@@ -22,7 +23,7 @@ import copy
 
 #print(__name__)
 
-def main():    
+def main():        
 
     startWorkers() # Init multiprocessing
 
@@ -38,6 +39,11 @@ def main():
     board = chess.Board()
     boards = [] # we should check for 3-fold repetition and similar things
 
+    moves = [ 
+        chess.Move.from_uci("e2e4"),
+        chess.Move.from_uci("e7e6"),
+#        chess.Move.from_uci("c1f4"),
+    ]
     moves = []
         
     while not maxPlies or board.ply() < maxPlies:

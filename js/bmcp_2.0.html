@@ -488,7 +488,7 @@
       // update board view
       drawBoard();
       
-      console.log("bestTargetSquare = ", bestTargetSquare)
+      //////console.log("bestTargetSquare = ", bestTargetSquare)
       // highlight last move
       document.getElementById(bestTargetSquare).classList.add('highlight');
     }  
@@ -592,8 +592,8 @@
     return s + t
   }
 
-  searchDepth = 4
-  maxPlies = 0
+  maxPlies = 5
+  searchDepth = 5
   ply = 0
 
   //score = search(sideToMove, -10000, 10000, depth);

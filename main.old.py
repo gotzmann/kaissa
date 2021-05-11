@@ -24,8 +24,8 @@ start = time.time()
 #mem1 = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 #print("MEM1", round(mem, 2), "Mb")
 
-maxPlies = 5 # zero for unlimited moves
-defaultDepth = 5
+maxPlies = 6 # zero for unlimited moves
+defaultDepth = 3
 if len(sys.argv) > 1:
     defaultDepth = int(sys.argv[1])
 #print(defaultDepth)

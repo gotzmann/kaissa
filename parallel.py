@@ -8,10 +8,10 @@ from multiprocessing import Process, Queue
 # TODO Implement time constraints to avoid "Black forfeits on time"
 
 # How many CPU cores should we use?
-cores: int = 6
+cores = 4
 
 # Total count of nested calls within current ply
-count: int = 0
+count = 0
 
 # Workers stays in memory till the programm end
 workers = []
@@ -33,10 +33,8 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
 
     global count; count = 0
 
-
     #cores = cpu_count()
-    results = []
-    
+    results = []    
 
     # Distribute all moves as tasks for different cores 
     #####core = 0
@@ -57,15 +55,6 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
 
         #####core = core + 1 if core < cores-1 else 0
 
-    #return     
-    # Stop signals for each process
-###    for _ in range(cores): inq.put(None)
-    
-    # Wait while boards are processing
-#############################################    for w in workers: w.join()
-
-    # Stop all workers
-###    for _ in range(cores): inq.put(None)
 
     bestMove = None
     bestScore = -10000
@@ -76,7 +65,7 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
         ##########################################################result = outq.get()
         
         move, score = outq.get() ######################################## result
-        
+        print(move, "=>", score)        
         # TODO Break by time-out and do more reliable processing here
         #################################################results.append(result)
         if score > bestScore:
@@ -181,26 +170,19 @@ def worker1(inq: Queue, outq: Queue):
         outq.put( (board.peek(), score) )
 
 def worker(inq: Queue, outq: Queue):
-#def worker():
 
     # We must init all params on the very first move 
     ply = -1
 
     while True:
-
         args = inq.get()
 
-        # Stop worker
-        
+        # Stop worker        
         if args is None: break
-
-#        bestScore = -10000
-#        bestMove = None
-
-#    for task in tasks:
 
         #board: chess.Board, depth: int, alpha: int, beta: int
         board, turn, depth, a, b = args
+        #board, turn, depth, alpha, beta = args
 
         # Init all params with defaults on every new move
         if board.ply() != ply:
@@ -214,7 +196,6 @@ def worker(inq: Queue, outq: Queue):
         if score > alpha:
             alpha = score
             if score >= beta: # TODO Is it ever possible?
-                #return beta, board.peek()        
                 outq.put( (board.peek(), beta) )
 
         # Return bestMove and bestScore
