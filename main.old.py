@@ -2,8 +2,8 @@ import chess
 import random
 import sys
 import argparse
-#from negamax import search
-from parallel import search
+from negamax import search
+#from parallel import search
 #import resource
 #import os
 #import psutil
@@ -24,14 +24,14 @@ start = time.time()
 #mem1 = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 #print("MEM1", round(mem, 2), "Mb")
 
-defaultDepth = 4
+maxPlies = 5 # zero for unlimited moves
+defaultDepth = 5
 if len(sys.argv) > 1:
     defaultDepth = int(sys.argv[1])
 #print(defaultDepth)
 #sys.exit()
 
 tree = ""
-maxPlies = 0 # zero for unlimited moves
 movesPerSecond = 0
 board = chess.Board()
 boards = [] # we should check for 3-fold repetition and similar things
@@ -118,17 +118,17 @@ def paramain(move):
 print("NAME |", __name__)
 
 # Child processes have names: __mp_main__
-if __name__ == "__main__":
+###if __name__ == "__main__":
 
-    pool = Pool()
+###    pool = Pool()
 
     #res = pool.map(workers.para, board.legal_moves)
-    print(res.get())
+###    print(res.get())
 
-    pool.close()
-    pool.join()
+###    pool.close()
+###    pool.join()
 
-    print(res.get())
+###    print(res.get())
 
 if len(moves):
     print("PERFORM", len(moves), "plies from MOVES list")

@@ -4,7 +4,7 @@ from evaluate import evaluate
 import copy
 #import os
 #import psutil
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 #from multiprocessing.pool import ThreadPool as Pool
 import sys
 
@@ -16,25 +16,29 @@ import sys
 count: int = 0
 
 #def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta: int = 10000, returnMove: bool = False, returnCount: bool = False, tree: str = ""):
-def search(board: chess.Board, depth: int, alpha: int = -10000, beta: int = 10000):
+def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta: int = 10000):
 
     global count; count = 0
 
   ####  doChess = True
-    cores = 6
-    core = 0
+    cores = 3
+    #cores = cpu_count()
+    print("CORES", cores)
     tasks = [[] for _ in range(cores)]
     results = []
     ###print(tasks)
 
     # Distribute all moves as tasks for different cores 
+    core = 0
     for move in board.legal_moves:
+        #newBoard = copy.copy(board)
         newBoard = copy.copy(board)
         newBoard.push(move)
         #result = pool.apply_async(negamax, args = (newBoard, depth-1, -beta, -alpha))    
         #results.append({ "move": move, "score": result })
         ###tasks[core].append( (newBoard, depth-1, -beta, -alpha) )
-        tasks[core].append( (newBoard, depth-1, alpha, beta) )
+        #tasks[core].append( (newBoard, not turn, depth-1, -beta, -alpha) )
+        tasks[core].append( (newBoard, turn, depth, alpha, beta) )
         #print(core)
         core = core + 1 if core < cores-1 else 0
         #print(core)
@@ -47,11 +51,13 @@ def search(board: chess.Board, depth: int, alpha: int = -10000, beta: int = 1000
     # Form [pool] of [tasks] for each core 
     # Each core will compute dozen moves in the [task] list one by one
     pool = Pool(cores)
-    for task in tasks:    
+    for task in tasks:   
+        #for t in task:
+        #    print(t[0]) 
         #result = pool.apply_async(negamax, args = (newBoard, depth-1, -beta, -alpha))  
         #result = pool.apply_async(map, args = (task))
         #print("=== TASK\n", task)
-        result = pool.apply_async(mapping, [task])
+        result = pool.apply_async(map, [task])
         #result = pool.apply_async(mapping, [(1, 2, 3)])    
         results.append(result)
 
@@ -76,6 +82,8 @@ def search(board: chess.Board, depth: int, alpha: int = -10000, beta: int = 1000
         ###score = -result["score"].get()
         #move, score = result.get()
         move, score = result.get()
+        #print("BEST", move, score)
+        #score = -score # !!!
         if score > bestScore:
             bestScore = score
             bestMove = move
@@ -142,6 +150,7 @@ def searchOK(board: chess.Board, depth: int, alpha: int = -10000, beta: int = 10
     results = []
 
     for move in board.legal_moves:
+        #newBoard = copy.copy(board)
         newBoard = copy.copy(board)
         newBoard.push(move)
         result = pool.apply_async(negamax, args = (newBoard, depth-1, -beta, -alpha))    
@@ -210,7 +219,7 @@ def negamaxOK(board: chess.Board, depth: int, alpha: int, beta: int):
     return alpha
 
 
-def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
+def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
 
     # Lets count all nested calls for search within current move
     # TODO Mutex to avoid data races
@@ -219,7 +228,7 @@ def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
     # Just return evaluation for terminal nodes  
     # TODO Check for game_over ONLY if there None move was returned!  
     if depth == 0 or board.is_game_over():               
-        return evaluate(board, board.turn)
+        return evaluate(board, turn)
 
     bestMove = None
 
@@ -235,7 +244,7 @@ def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
 #        else:                
 #            score = -search(board, not turn, depth-1, -beta, -alpha, tree = tree)
 #        tree = treeBefore      
-        score = -negamax(board, depth-1, -beta, -alpha)      
+        score = -negamax(board, not turn, depth-1, -beta, -alpha)      
         board.pop()                            
 
         if score > alpha:             
@@ -262,7 +271,7 @@ def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
 
 #def negamax(board: chess.Board, depth: int, alpha: int, beta: int, tree: str = ""):             
 #def negamax(board: chess.Board, depth: int, alpha: int, beta: int):
-def mapping(tasks):
+def map(tasks):
     #print("MAPPING", tasks)
     bestScore = -10000
     bestMove = None
@@ -270,14 +279,14 @@ def mapping(tasks):
     for task in tasks:
 
         #board: chess.Board, depth: int, alpha: int, beta: int
-        board, depth, alpha, beta = task
-        score = -negamax(board, depth-1, -beta, -alpha)   
-
+        board, turn, depth, alpha, beta = task
+        score = -negamax(board, not turn, depth-1, -beta, -alpha)   
+        #print(board.peek(), "=>", score)
         if score > bestScore:
             bestScore = score
             bestMove = board.peek()
             # TODO Change alpha / beta for next moves
  
-        return bestMove, bestScore
+    return bestMove, bestScore
 
 

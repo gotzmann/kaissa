@@ -1,16 +1,15 @@
 import chess
-import random
+#import random
 import sys
-import argparse
+#import argparse
 #from negamax import search
-#from parallel import search, count
-import parallel
+from parallel import search
+#import parallel
 #import resource
 #import os
 #import psutil
 import time
 import copy
-from multiprocessing import Pool
 
 # TODO Compute Moves Per Second metric to understand the average performance
 # TODO no castling
@@ -53,7 +52,7 @@ def main():
         else:    
             ###################score, move, count = search(board, board.turn, defaultDepth, -10000, 10000, returnMove = True, returnCount = True, tree = tree)    
             #move, score, count = search(board, defaultDepth, -10000, 10000)    
-            move, score, count = parallel.search(board, defaultDepth, -10000, 10000)    
+            move, score, count = search(board, board.turn, defaultDepth, -10000, 10000)    
 
         board.push(move)   
         #tree += move.uci() + " | "
@@ -63,7 +62,7 @@ def main():
         print("\n===============")    
         #print(f"MOVE {board.ply()} => {move} of {count} => {score}")
         #print(f"MOVE {board.ply()} => {move} of {count}")
-        print(f"MOVE {board.ply()} => {move} of {parallel.count} => {score}")
+        print(f"MOVE {board.ply()} => {move} of {count} => {score}")
         print("===============")    
         print(board)
         print("===============")        

@@ -66,4 +66,37 @@ def evaluate(board: chess.Board, turn: bool):
         score = -score
                     
     return score                        
+
+def evaluateOK(board: chess.Board, turn: bool):
+
+    # TODO Mate in ply! Move to eval function as special heuristic?            
+    if board.is_checkmate():
+        #print("=== EVAL IN CHECK :", 10000 - board.ply(), "===")
+        return 10000 - board.ply()                
+    
+    score = 0
+
+    # The board already applied the move so we should use 
+    # color of "previous" turn to evaluate score properly
+    # turn = board.turn
+    
+    # Iterate over all 64 squares of board    
+    for square in chess.SQUARES: 
+
+        piece = board.piece_type_at(square)  # 1 .. 6 or None   
+
+        if not piece: continue
+            
+        # Calculate material and positional score            
+        if board.color_at(square) == chess.WHITE:
+            score += pieceWeights[piece]
+            score += positionWeights[square]                
+        else:    
+            score -= pieceWeights[piece]
+            score -= positionWeights[square]
+
+    if turn == chess.BLACK:
+        score = -score
+                    
+    return score                        
     
