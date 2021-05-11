@@ -11,6 +11,9 @@ from parallel import search, startWorkers, stopWorkers
 import time
 import copy
 
+# TODO Remove turn parameter for negamax and evaluate functions
+# TODO Compute count correctly
+
 # TODO Compute Moves Per Second metric to understand the average performance
 # TODO no castling
 # TODO no enpassant

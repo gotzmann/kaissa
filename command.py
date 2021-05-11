@@ -1,6 +1,7 @@
 import chess
 import random
-from negamax import search
+#from negamax import search
+from parallel import search
 from log import log
 
 # TODO Teach engine to play both white and black sides
@@ -12,8 +13,8 @@ def command(msg: str, board: chess.Board, defaultDepth: int):
     """
 
     if msg == "quit":
-        log("\n[KAISSA64] Session was ended...")
-        sys.exit()
+        log("\n[KAISSA64] Session was ended...")        
+        return
 
     if msg == "uci":
         print("id name Kaissa64")  
@@ -51,8 +52,11 @@ def command(msg: str, board: chess.Board, defaultDepth: int):
         board.set_fen(fen)
         # TODO Duplcation with [go] part
         log(f"... searching with depth {defaultDepth}")
-        #score, move = search(board, board.turn, depth, returnMove = True)        
-        score, move, count = search(board, board.turn, defaultDepth, -10000, 10000, returnMove = True, returnCount = True)    
+        #score, move = search(board, board.turn, depth, returnMove = True) 
+        
+        #move, score, count = search(board, board.turn, defaultDepth, -10000, 10000)    
+        move, score, count = search(board, board.turn, defaultDepth, -10000, 10000)    
+        
         log(f"... push move {move} => {score}")
         board.push(move)
         log(f"<<< bestmove {move}")
@@ -62,7 +66,9 @@ def command(msg: str, board: chess.Board, defaultDepth: int):
     if msg[0:2] == "go":
         log(f"... searching with depth {defaultDepth}")
         #score, move = search(board, board.turn, depth, returnMove = True)        
-        score, move, count = search(board, board.turn, defaultDepth, -10000, 10000, returnMove = True, returnCount = True)    
+        
+        move, score, count = search(board, board.turn, defaultDepth, -10000, 10000)  
+        
         log(f"... push move {move} => {score}")
         board.push(move)
         log(f"<<< bestmove {move}")

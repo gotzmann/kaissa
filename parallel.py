@@ -19,36 +19,24 @@ workers = []
 inq = Queue()
 outq = Queue()
 
-def startWorkers():
-    #print("WORKERS")
+def startWorkers():    
     workers = [ 
-        Process(target = worker, args = (inq, outq))
-        #Process(target = worker, args = ())
+        Process(target = worker, args = (inq, outq))        
             for _ in range(cores)
-    ]
-    #print("START")
-    # TODO ??? w.Daemon = True
-    for w in workers: w.start()
+    ]        
+    for w in workers: w.start() # TODO ??? w.Daemon = True
     
 def stopWorkers():
-    for _ in range(cores): inq.put(None)
-    #for w in workers: w.terminate()
+    for _ in range(cores): inq.put(None)    
 
-#def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta: int = 10000, returnMove: bool = False, returnCount: bool = False, tree: str = ""):
 def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta: int = 10000):
 
     global count; count = 0
 
- ###   inq = Queue()
- ###   outq = Queue()
-
-  ####  doChess = True
 
     #cores = cpu_count()
-    #print("CORES", cores)
-###    tasks = [[] for _ in range(cores)]
     results = []
-    ###print(tasks)
+    
 
     # Distribute all moves as tasks for different cores 
     #####core = 0
@@ -66,15 +54,13 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
         #q.put( (newBoard, turn, depth, alpha, beta) )
 
         inq.put( (newBoard, turn, depth, alpha, beta) )
-        #print(core)
+
         #####core = core + 1 if core < cores-1 else 0
-        #print(core)
-        #print(tasks)    
 
     #return     
     # Stop signals for each process
 ###    for _ in range(cores): inq.put(None)
-    #print("JOIN")
+    
     # Wait while boards are processing
 #############################################    for w in workers: w.join()
 
@@ -88,9 +74,9 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
     count = 0
     while True:
         ##########################################################result = outq.get()
-        #print("INSIDE LOOP")
+        
         move, score = outq.get() ######################################## result
-        ##################################################print(move, "=>", score)
+        
         # TODO Break by time-out and do more reliable processing here
         #################################################results.append(result)
         if score > bestScore:
@@ -106,7 +92,7 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
         ###score = -result["score"].get()
         #move, score = result.get()
         ############################################################move, score = result
-        #print("BEST", move, score)
+        
         #score = -score # !!!
     ####################################################    if score > bestScore:
      #######################################################       bestScore = score
@@ -114,45 +100,7 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
 
     return bestMove, bestScore, count    
 
-    return    
-    
-    # Starting jobs with ALL processes
-    for task in tasks:
-        print("PROCESS")
-        p = Process(target=map, args=[task])
-        p.Daemon = True
-        p.start()
-
-    # Awaiting while ALL tasks end up execution    
-    for task in tasks:
-        p.join()
-    #print time.time()-t
-    #while True:
-        #print q.get()    
-
-
-    bestMove = None
-    bestScore = -10000
-
-    # Results is the list of best moves from separate [task] lists
-    # Lets choose the Best of the Bests move
-    for result in results:            
-        #score = -result["score"].get()
-        ###score = -result["score"].get()
-        #move, score = result.get()
-        move, score = result.get()
-        #print("BEST", move, score)
-        #score = -score # !!!
-        if score > bestScore:
-            bestScore = score
-            bestMove = move
-
-    return bestMove, bestScore, count
-
 def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
-
-    #print("============")
-    #print(board)
 
     # Lets count all nested calls for search within current move
     # TODO Mutex to avoid data races
@@ -202,7 +150,7 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
 
 
 def map(tasks):
-    #print("MAPPING", tasks)
+    
     bestScore = -10000
     bestMove = None
 
@@ -211,7 +159,7 @@ def map(tasks):
         #board: chess.Board, depth: int, alpha: int, beta: int
         board, turn, depth, alpha, beta = task
         score = -negamax(board, not turn, depth-1, -beta, -alpha)   
-        #print(board.peek(), "=>", score)
+        
         if score > bestScore:
             bestScore = score
             bestMove = board.peek()
@@ -241,11 +189,9 @@ def worker(inq: Queue, outq: Queue):
     while True:
 
         args = inq.get()
-        #print("WORKER")
-        #print(args)
 
         # Stop worker
-        #if args is None: print("LEAVE WORKER"); break
+        
         if args is None: break
 
 #        bestScore = -10000
@@ -264,7 +210,7 @@ def worker(inq: Queue, outq: Queue):
 
         score = -negamax(board, not turn, depth-1, -beta, -alpha)   
 
-        print("#", ply, board.peek(), "=>", score, " | ", alpha, " .. ", beta)
+        #print("#", ply, board.peek(), "=>", score, " | ", alpha, " .. ", beta)
         if score > alpha:
             alpha = score
             if score >= beta: # TODO Is it ever possible?

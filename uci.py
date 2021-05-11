@@ -5,28 +5,35 @@ import argparse
 from command import command
 from log import log
 import time
+from parallel import startWorkers, stopWorkers
 
-start = time.time()
+#print("UCI NAME", __name__)
 
-defaultDepth = 3
-if len(sys.argv) > 1:
-    defaultDepth = int(sys.argv[1])
+def main():    
 
-board = chess.Board()
+    log("\n[KAISSA64] Start new session...\n")    
+    start = time.time()    
+    startWorkers() # Init multiprocessing           
+    
+    defaultDepth = 3
+    if len(sys.argv) > 1:
+        defaultDepth = int(sys.argv[1])
 
-log("\n[KAISSA64] Start new session...\n")
+    board = chess.Board()    
 
-while True:
-    msg = input()
-    log(f">>> {msg}")    
-    command(msg, board, defaultDepth)
+    while True:
+        msg = input()
+        log(f">>> {msg}")    
+        if msg == "quit": break
+        command(msg, board, defaultDepth)
 
-end = time.time()
-log("\nTIME", round(end - start, 2), "sec")
+    stopWorkers()
+    end = time.time()    
+    log(f"\n[KAISSA64] Session was ended after {round(end - start, 2)} sec...")
 
-log("\n[KAISSA64] Session was ended...")
+# Child processes have names: __mp_main__
+if __name__ == "__main__": main()
 
-sys.exit()
 
 # --- Python Simple Chess Log ---
 
