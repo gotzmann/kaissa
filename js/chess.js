@@ -1,11 +1,3 @@
-<div id="board"></div>
-<style>
-  #board { padding: 50px; }
-  .highlight { box-shadow: inset 0px 0px 3px 3px #ff3300; }
-  .mate { box-shadow: inset 0px 0px 5px 5px red; }
-</style>
-<script>
-
   /*******************************************\
     =========================================
               PIECE COLOR ENCOIDING
@@ -592,8 +584,8 @@
     return s + t
   }
 
-  maxPlies = 5
-  searchDepth = 5
+  maxPlies = 6
+  searchDepth = 3
   ply = 0
 
   //score = search(sideToMove, -10000, 10000, depth);
@@ -611,5 +603,3 @@
   console.log("Finishing...")
 //*/
 // ------------------------------------------------------------------------------------------------------------
-
-</script>

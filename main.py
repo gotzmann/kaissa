@@ -36,8 +36,8 @@ def main():
 
     tree = ""
     movesPerSecond = 0
-    ###board = chess.Board()
-    board = chess.Board("1k6/8/8/8/8/8/5Q2/1K4Q1 w - - 0 1") # White win
+    board = chess.Board()
+    #board = chess.Board("1k6/8/8/8/8/8/5Q2/1K4Q1 w - - 0 1") # White win
     #board = chess.Board("1K6/8/8/8/8/8/5q2/1k4q1 w - - 0 1") # Black win
     boards = [] # we should check for 3-fold repetition and similar things
 
@@ -53,7 +53,6 @@ def main():
     print("===============")    
     print(board)
     print("===============")        
-
         
     while not maxPlies or board.ply() < maxPlies:
 

@@ -50,7 +50,7 @@ def evaluate(board: chess.Board, turn: bool):
         ##if board.turn != chess.BLACK:        
         if turn != board.turn:        
             score = -score                
-        print("TERMINAL MATE", board.peek(), score)        
+        #print("TERMINAL MATE", board.peek(), score)        
         return score                        
 
     score = 0
@@ -74,7 +74,8 @@ def evaluate(board: chess.Board, turn: bool):
             score -= pieceWeights[piece]
             score -= positionWeights[square]
 
-    if turn == chess.BLACK:
+    ####if turn == chess.BLACK:
+    if board.turn == chess.BLACK:
         score = -score
                     
     return score                        
