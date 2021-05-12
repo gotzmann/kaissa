@@ -152,8 +152,11 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
 ##                score = -score            
 #        else:                
 #            score = -negamax(board, not turn, depth-1, -beta, -alpha)      
-#        tree = treeBefore      
-        score = -negamax(board, not turn, depth-1, -beta, -alpha)      
+#        tree = treeBefore 
+      
+        ###score = -negamax(board, not turn, depth-1, -beta, -alpha)      
+        score = -negamax(board, turn, depth-1, -beta, -alpha)      
+
         # TODO What if do not pop?
         board.pop()                            
 
@@ -176,25 +179,6 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
                 return beta
                                           
     return alpha
-
-
-def map(tasks):
-    
-    bestScore = -10000
-    bestMove = None
-
-    for task in tasks:
-
-        #board: chess.Board, depth: int, alpha: int, beta: int
-        board, turn, depth, alpha, beta = task
-        score = -negamax(board, not turn, depth-1, -beta, -alpha)   
-        
-        if score > bestScore:
-            bestScore = score
-            bestMove = board.peek()
-            # TODO Change alpha / beta for next moves
- 
-    return bestMove, bestScore
 
 def worker1(inq: Queue, outq: Queue):
 
@@ -230,7 +214,8 @@ def worker(inq: Queue, outq: Queue):
             alpha = a
             beta = b                       
 
-        score = -negamax(board, not turn, depth-1, -beta, -alpha)   
+        ###score = -negamax(board, not turn, depth-1, -beta, -alpha)   
+        score = -negamax(board, turn, depth-1, -beta, -alpha)   
 
         #print("#", ply, board.peek(), "=>", score, " | ", alpha, " .. ", beta)
         if score > alpha:

@@ -47,7 +47,8 @@ def evaluate(board: chess.Board, turn: bool):
     if board.is_checkmate():
         score = 10000 - board.ply()                                
         #if turn == chess.BLACK:        
-        if board.turn != chess.BLACK:        
+        ##if board.turn != chess.BLACK:        
+        if turn != board.turn:        
             score = -score                
         print("TERMINAL MATE", board.peek(), score)        
         return score                        
