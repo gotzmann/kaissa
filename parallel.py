@@ -8,7 +8,7 @@ from multiprocessing import Process, Queue
 # TODO Implement time constraints to avoid "Black forfeits on time"
 
 # How many CPU cores should we use?
-cores = 4
+cores = 6
 
 # Total count of nested calls within current ply
 count = 0

@@ -11,7 +11,6 @@ from parallel import search, startWorkers, stopWorkers
 import time
 import copy
 
-# TODO Remove turn parameter for negamax and evaluate functions
 # TODO Compute count correctly
 # TODO Save best computed moves for later? I mean cache the game tree
 
@@ -20,8 +19,6 @@ import copy
 # TODO no enpassant
 # TODO no 3 fold repetition
 # TODO no 50 rule move count
-
-#print(__name__)
 
 def main():        
 
