@@ -65,7 +65,7 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
         ##########################################################result = outq.get()
         
         move, score = outq.get() ######################################## result
-        print(move, "=>", score)        
+        #print(move, "=>", score)        
         # TODO Break by time-out and do more reliable processing here
         #################################################results.append(result)
         if score > bestScore:
@@ -101,20 +101,60 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
         return evaluate(board, turn)
 
 #######################################################################    bestMove = None
+    """
+    # We should get last move from the top of the board to compute check/mate situation correctly
+    move = board.pop()
 
+    # Heuristic to valuate the MATE move    
+    if board.gives_check(move):            
+        board.push(move)  
+        if board.is_checkmate():      
+            score = -(10000 - board.ply())
+            print("TOP MATE", move, score)
+            return score
+        else:    
+            board.pop()
+
+    # Heuristic to valuate the CHECK move    
+    if board.gives_check(move):            
+        score = -(9000 - board.ply())        
+        print("TOP CHECK", move, score)
+        board.push(move)        
+        return score
+
+    # Return board to the initial state
+    board.push(move)        
+    """
+    # Check all moves one by one
     for move in board.legal_moves:      
-        
+    
         board.push(move)        
 #        treeBefore = tree
 #        tree += move.uci() + " > "         
 
         # We should see immediate checks
+        #print(move, "=> board_check?")
 #        if board.is_checkmate():            
-#            score = 10000 - board.ply()
+#            score = 10000 - board.ply()                
+#            print("CHECKMATE INSIDE", move, score)
+            # TODO Whats the right sign here?            
+            #if turn == chess.BLACK:
+##            if turn == board.turn:
+##                score = -score  
+        # TODO Move other fugures close to checking king 
+        #      Calculate some form of distance here?
+#        elif board.is_check():            
+#            score = 9000 - board.ply()                
+#            print("CHECK INSIDE", move, score)
+            # TODO Whats the right sign here?            
+            #if turn == chess.BLACK:
+##            if turn == board.turn:
+##                score = -score            
 #        else:                
-#            score = -search(board, not turn, depth-1, -beta, -alpha, tree = tree)
+#            score = -negamax(board, not turn, depth-1, -beta, -alpha)      
 #        tree = treeBefore      
         score = -negamax(board, not turn, depth-1, -beta, -alpha)      
+        # TODO What if do not pop?
         board.pop()                            
 
         if score > alpha:             

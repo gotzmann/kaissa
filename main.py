@@ -29,14 +29,16 @@ def main():
 
     start = time.time()
 
-    maxPlies = 5 # zero for unlimited moves
-    defaultDepth = 5
+    maxPlies = 6 # zero for unlimited moves
+    defaultDepth = 3
     if len(sys.argv) > 1:
         defaultDepth = int(sys.argv[1])
 
     tree = ""
     movesPerSecond = 0
-    board = chess.Board()
+    ###board = chess.Board()
+    board = chess.Board("1k6/8/8/8/8/8/5Q2/1K4Q1 w - - 0 1") # White win
+    #board = chess.Board("1K6/8/8/8/8/8/5q2/1k4q1 w - - 0 1") # Black win
     boards = [] # we should check for 3-fold repetition and similar things
 
     moves = [ 
@@ -45,15 +47,15 @@ def main():
 #        chess.Move.from_uci("c1f4"),
     ]
     moves = []
+
+    print("\n===============")    
+    print("     START     ")
+    print("===============")    
+    print(board)
+    print("===============")        
+
         
     while not maxPlies or board.ply() < maxPlies:
-
-        if board.is_game_over():
-            print("===============")
-            print("   GAME OVER   ")
-            print("     ", board.outcome().result())        
-            print("===============")
-            break        
 
         print("\n[", len(list(board.legal_moves)), "] =>", [ move.uci() for move in board.legal_moves ])
 
@@ -94,6 +96,14 @@ def main():
                 print("    3-FOLD!    ")        
                 print("===============")
                 break
+
+        if board.is_game_over():
+            print("===============")
+            print("   GAME OVER   ")
+            print("     ", board.outcome().result())        
+            print("===============")
+            break        
+    
 
     end = time.time()
     execTime = end - start

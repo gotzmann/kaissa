@@ -34,13 +34,24 @@ positionWeights = [
 # The core of the chess engine - evaluation function
 # Calculate simple one using sum of material and positional scores
 
+# FIXME Think twice what turn to send as an argument!
+#       Should work both with white and black mates:
+#       board = chess.Board("1k6/8/8/8/8/8/5Q2/1K4Q1 w - - 0 1") # White win
+#       board = chess.Board("1K6/8/8/8/8/8/5q2/1k4q1 w - - 0 1") # Black win
+
 def evaluate(board: chess.Board, turn: bool):
 
+    # TODO Incorrect scores for the move when the side in check?
+    #      See board = chess.Board("1k6/8/8/8/8/8/5Q2/1K4Q1 w - - 0 1")
     # TODO Mate in ply! Move to eval function as special heuristic?            
     if board.is_checkmate():
-        #print("=== EVAL IN CHECK :", 10000 - board.ply(), "===")
-        return 10000 - board.ply()                
-    
+        score = 10000 - board.ply()                                
+        #if turn == chess.BLACK:        
+        if board.turn != chess.BLACK:        
+            score = -score                
+        print("TERMINAL MATE", board.peek(), score)        
+        return score                        
+
     score = 0
 
     # The board already applied the move so we should use 
