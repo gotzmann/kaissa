@@ -31,61 +31,30 @@ def stopWorkers():
 
 def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta: int = 10000):
 
-    global count; count = 0
-
-    #cores = cpu_count()
+    global count; count = 0    
     results = []    
 
-    # Distribute all moves as tasks for different cores 
-    #####core = 0
+    # Create queue of jobs for different workers
     moves  = list(board.legal_moves)
-    for move in moves:
-        #newBoard = copy.copy(board)
+    for move in moves:        
         newBoard = copy.copy(board)
         newBoard.push(move)
-        #result = pool.apply_async(negamax, args = (newBoard, depth-1, -beta, -alpha))    
-        #results.append({ "move": move, "score": result })
-        ###tasks[core].append( (newBoard, depth-1, -beta, -alpha) )
-        #tasks[core].append( (newBoard, not turn, depth-1, -beta, -alpha) )
-
-        #####tasks[core].append( (newBoard, turn, depth, alpha, beta) )
-        #q.put( (newBoard, turn, depth, alpha, beta) )
-
         inq.put( (newBoard, turn, depth, alpha, beta) )
-
-        #####core = core + 1 if core < cores-1 else 0
-
 
     bestMove = None
     bestScore = -10000
 
     # Get all results
+    # TODO Break by time-out and do more reliable processing here
     count = 0
-    while True:
-        ##########################################################result = outq.get()
-        
-        move, score = outq.get() ######################################## result
-        #print(move, "=>", score)        
-        # TODO Break by time-out and do more reliable processing here
-        #################################################results.append(result)
+    while True:        
+        move, score = outq.get()
+        #print(move, "=>", score)                
         if score > bestScore:
             bestScore = score
             bestMove = move
         count += 1    
         if count == len(moves): break
-
-    # Results is the list of best moves from separate [task] lists
-    # Lets choose the Best of the Bests move
-    ###########################################################for result in results:            
-        #score = -result["score"].get()
-        ###score = -result["score"].get()
-        #move, score = result.get()
-        ############################################################move, score = result
-        
-        #score = -score # !!!
-    ####################################################    if score > bestScore:
-     #######################################################       bestScore = score
-     ############################################################       bestMove = move
 
     return bestMove, bestScore, count    
 
@@ -100,7 +69,6 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
     if depth == 0 or board.is_game_over():               
         return evaluate(board, turn)
 
-#######################################################################    bestMove = None
     """
     # We should get last move from the top of the board to compute check/mate situation correctly
     move = board.pop()
@@ -130,40 +98,13 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
     
         board.push(move)        
 #        treeBefore = tree
-#        tree += move.uci() + " > "         
-
-        # We should see immediate checks
-        #print(move, "=> board_check?")
-#        if board.is_checkmate():            
-#            score = 10000 - board.ply()                
-#            print("CHECKMATE INSIDE", move, score)
-            # TODO Whats the right sign here?            
-            #if turn == chess.BLACK:
-##            if turn == board.turn:
-##                score = -score  
-        # TODO Move other fugures close to checking king 
-        #      Calculate some form of distance here?
-#        elif board.is_check():            
-#            score = 9000 - board.ply()                
-#            print("CHECK INSIDE", move, score)
-            # TODO Whats the right sign here?            
-            #if turn == chess.BLACK:
-##            if turn == board.turn:
-##                score = -score            
-#        else:                
-#            score = -negamax(board, not turn, depth-1, -beta, -alpha)      
-#        tree = treeBefore 
-      
-        ###score = -negamax(board, not turn, depth-1, -beta, -alpha)      
-        score = -negamax(board, turn, depth-1, -beta, -alpha)      
-
-        # TODO What if do not pop?
-        board.pop()                            
+#        tree += move.uci() + " > "             
+        score = -negamax(board, turn, depth-1, -beta, -alpha)              
+        board.pop() # TODO What if do not pop?
 
         if score > alpha:             
             # TODO Should look for order of later assignments and beta check
             alpha = score
-#################################################################################            bestMove = move   
 
             # Print board for "root" moves
             #if returnMove:
@@ -199,14 +140,10 @@ def worker(inq: Queue, outq: Queue):
     ply = -1
 
     while True:
-        args = inq.get()
 
-        # Stop worker        
-        if args is None: break
-
-        #board: chess.Board, depth: int, alpha: int, beta: int
+        args = inq.get()        
+        if args is None: break # Stop worker        
         board, turn, depth, a, b = args
-        #board, turn, depth, alpha, beta = args
 
         # Init all params with defaults on every new move
         if board.ply() != ply:
@@ -214,7 +151,6 @@ def worker(inq: Queue, outq: Queue):
             alpha = a
             beta = b                       
 
-        ###score = -negamax(board, not turn, depth-1, -beta, -alpha)   
         score = -negamax(board, turn, depth-1, -beta, -alpha)   
 
         #print("#", ply, board.peek(), "=>", score, " | ", alpha, " .. ", beta)
