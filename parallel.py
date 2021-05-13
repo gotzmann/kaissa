@@ -33,13 +33,27 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
 
     global count; count = 0    
     results = []    
+    
+    # What was the last BEST move?
+    if board.ply() > 1:
+        theBoard = copy.copy(board)
+        theBoard.pop()
+        wasBest = theBoard.pop().uci()
+        #print("WAS BEST", wasBest)
+    else:
+        wasBest = None    
 
     # Create queue of jobs for different workers
     moves  = list(board.legal_moves)
     for move in moves:        
         newBoard = copy.copy(board)
         newBoard.push(move)
-        inq.put( (newBoard, turn, depth, alpha, beta) )
+        # Search previous best move deeper than others
+        if move.uci() == wasBest: 
+            #print("WAS BEST", move, "+2")
+            inq.put( (newBoard, turn, depth + 2, alpha, beta) )
+        else:    
+            inq.put( (newBoard, turn, depth, alpha, beta) )
 
     bestMove = None
     bestScore = -10000

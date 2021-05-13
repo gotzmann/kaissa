@@ -5,6 +5,7 @@ kaissa64.log
 /dist
 /build
 *.spec
+proxy.log
 
 # Prerequisites
 *.d

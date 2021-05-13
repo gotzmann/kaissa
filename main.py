@@ -19,10 +19,18 @@ def main():
 
     start = time.time()
 
-    maxPlies = 6 # 0 for unlimited moves
-    defaultDepth = 3
+    maxPlies = 6 # 0 for unlimited moves    
     if len(sys.argv) > 1:
-        defaultDepth = int(sys.argv[1])
+        depth = int(sys.argv[1])
+        if depth < 10: # for example: 3 both for default and max depth
+            defaultDepth = depth
+            maxDepth = defaultDepth
+        else: # 37 for example: 3 for default and 7 for max depth               
+            defaultDepth = round (depth / 10)
+            maxDepth = depth - defaultDepth
+    else:    
+        defaultDepth = 3    
+        maxDepth = defaultDepth
 
     tree = ""
     movesPerSecond = 0
