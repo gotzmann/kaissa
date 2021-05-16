@@ -3,6 +3,7 @@ from parallel import search, startWorkers, stopWorkers
 import sys
 import time
 import copy
+import math
 
 # TODO Compute count correctly
 # TODO Save best computed moves for later? I mean cache the game tree
@@ -26,16 +27,20 @@ def main():
             defaultDepth = depth
             maxDepth = defaultDepth
         else: # 37 for example: 3 for default and 7 for max depth               
-            defaultDepth = round (depth / 10)
-            maxDepth = depth - defaultDepth
+            defaultDepth = math.floor(depth / 10)
+            maxDepth = depth % 10
     else:    
         defaultDepth = 3    
         maxDepth = defaultDepth
-
-    tree = ""
+    #print(depth, defaultDepth, maxDepth)
+    #sys.exit()
     movesPerSecond = 0
     board = chess.Board()
     boards = [] # we should check for 3-fold repetition and similar things
+
+#    board.push(chess.Move.from_uci("e2e4"))
+#    board.push(chess.Move.from_uci("e7e5"))
+#    board.push(chess.Move.from_uci("g1f3"))    
 
     print("\n===============")    
     print("     START     ")
@@ -47,11 +52,9 @@ def main():
 
         print("\n[", len(list(board.legal_moves)), "] =>", [ move.uci() for move in board.legal_moves ])
 
-        move, score, count = search(board, board.turn, defaultDepth, -10000, 10000)    
+        move, score, count = search(board, board.turn, defaultDepth, maxDepth)    
 
         board.push(move)   
-        #tree += move.uci() + " | "
-        tree = ">> "
         movesPerSecond += count
 
         print("\n===============")    

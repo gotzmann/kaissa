@@ -19,9 +19,14 @@ workers = []
 # Sharing Alpha between Processes
 sharedAlpha = Value('i', -10000)
 
+# Predicted best move trees for Black and White
+future = [[], []]
+
 inq = Queue()
 outq = Queue()
 
+# Store tree of next best moves to search it deeper then other moves
+bestTree = []
 
 def startWorkers():    
     workers = [ 
@@ -33,10 +38,9 @@ def startWorkers():
 def stopWorkers():
     for _ in range(cores): inq.put(None)    
 
-def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta: int = 10000):
+def search(board: chess.Board, turn: bool, depth: int, maxDepth: int, alpha: int = -10000, beta: int = 10000):
 
-    global count; count = 0    
-    results = []    
+    global count; count = 0        
 
     # Init global Alpha before starting pushing into queues
     with sharedAlpha.get_lock():
@@ -61,35 +65,52 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
             #print("WAS BEST", move, "+2")
  #           inq.put( (newBoard, turn, depth + 2, alpha, beta) )
   #      else:    
-        inq.put( (newBoard, turn, depth, alpha, beta) )
+        inq.put( (newBoard, turn, depth, alpha, beta, future[turn], {"maxDepth": maxDepth}) )
 
     bestMove = None
     bestScore = -10000
+    bestTree = []
 
     # Get all results
     # TODO Break by time-out and do more reliable processing here
     count = 0
     while True:        
-        move, score = outq.get()
+        move, score, tree = outq.get()
         if score > bestScore:
             bestScore = score
             bestMove = move
+            bestTree = tree
         count += 1    
         #print("===", move, "=>", score, " | BEST", bestMove)                
         if count == len(moves): break
 
+#    seq = ""
+#    for step in bestTree:
+#        seq += " > " + step.uci()
+#    print("\nTREE", seq)
+
+    future[turn] = bestTree
+
+    #print("FUTURE\n")
+    #print(future)
+
     return bestMove, bestScore, count    
 
-def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
+#def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int, treeIn = []):
+def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int, tree = []):
 
     # Lets count all nested calls for search within current move
     # TODO Mutex to avoid data races
     global count; count += 1    
 
+
+
+    ##tree = copy.deepcopy(tree)
+    tree = copy.copy(tree)
     # Just return evaluation for terminal nodes  
     # TODO Check for game_over ONLY if there None move was returned!  
     if depth == 0 or board.is_game_over():               
-        return evaluate(board, turn)
+        return evaluate(board, turn), tree
 
     """
     # We should get last move from the top of the board to compute check/mate situation correctly
@@ -115,18 +136,38 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
     # Return board to the initial state
     board.push(move)        
     """
+
+    alphaTree = []
+
     # Check all moves one by one
-    for move in board.legal_moves:      
-    
-        board.push(move)        
-#        treeBefore = tree
-#        tree += move.uci() + " > "             
-        score = -negamax(board, turn, depth-1, -beta, -alpha)              
+    for move in board.legal_moves:   
+
+        #tree = copy.deepcopy(tree)   
+
+        #print("TREE 1\n", tree)
+        #alphaTree = tree
+
+        #if turn == board.turn:      
+        tree.append(move)
+
+        board.push(move)  
+        ##print("TREE2\n", tree)
+        #score, tree = -negamax(board, turn, depth-1, -beta, -alpha, tree)    
+        score, newTree = negamax(board, turn, depth-1, -beta, -alpha, tree)            
+        score = -score ### !!!
+        ##print("TREE3\n", tree)
+        
+        
         board.pop() # TODO What if do not pop?
+
+        #if turn == board.turn:      
+        tree = tree[:-1]          
 
         if score > alpha:             
             # TODO Should look for order of later assignments and beta check
             alpha = score
+            #tree.append(move)
+            alphaTree = newTree
 
             # Print board for "root" moves
             #if returnMove:
@@ -138,10 +179,10 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
             #    board.pop()            
             #    print("---------------")   
 
-            if score >= beta:             
-                return beta
+            ##if score >= beta:             
+            ##    return beta
                                           
-    return alpha
+    return alpha, alphaTree
 
 def worker(inq: Queue, outq: Queue, sharedAlpha: Value):
 
@@ -150,12 +191,25 @@ def worker(inq: Queue, outq: Queue, sharedAlpha: Value):
         args = inq.get()        
         if args is None: break # Stop worker    
 
-        board, turn, depth, alpha, beta = args
+        board, turn, depth, alpha, beta, future, options = args
+        move = board.peek()
+
+        maxDepth = options.get("maxDepth", depth)
+        if len(future) > 1:
+            #print(move, "==", future[2])
+            if move == future[2]:                
+                #depth += 2 # TODO Make special parameter!
+                depth = maxDepth
+                #print(move, "==", future[2], "=>", depth)
 
         with sharedAlpha.get_lock():
             alpha = max(alpha, sharedAlpha.value)                                    
 
-        score = -negamax(board, turn, depth-1, -beta, -alpha)   
+        #score, tree = -negamax(board, turn, depth-1, -beta, -alpha)   
+        score, tree = negamax(board, turn, depth-1, -beta, -alpha, [move])   
+        score = -score ### !!!
+
+        #print("WORKER TREE\n", tree)
 
         with sharedAlpha.get_lock():
             if score > sharedAlpha.value:
@@ -166,4 +220,4 @@ def worker(inq: Queue, outq: Queue, sharedAlpha: Value):
         #print(board.peek(), "=>", score, " | ", alpha, " .. ", beta)
 
         # Return bestMove and bestScore
-        outq.put( (board.peek(), score) )
+        outq.put( (move, score, tree) )
