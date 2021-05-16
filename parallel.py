@@ -195,7 +195,7 @@ def worker(inq: Queue, outq: Queue, sharedAlpha: Value):
         move = board.peek()
 
         maxDepth = options.get("maxDepth", depth)
-        if len(future) > 1:
+        if len(future) > 2:
             #print(move, "==", future[2])
             if move == future[2]:                
                 #depth += 2 # TODO Make special parameter!

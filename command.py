@@ -6,7 +6,7 @@ from log import log
 
 # TODO Teach engine to play both white and black sides
 
-def command(msg: str, board: chess.Board, defaultDepth: int):    
+def command(msg: str, board: chess.Board, defaultDepth: int, maxDepth: int):    
     """
     Accept UCI commands and respond.
     The board state is also updated.
@@ -51,11 +51,11 @@ def command(msg: str, board: chess.Board, defaultDepth: int):
         fen = " ".join(msg.split(" ")[2:])
         board.set_fen(fen)
         # TODO Duplcation with [go] part
-        log(f"... searching with depth {defaultDepth}")
+        log(f"... searching with depth {defaultDepth}/{maxDepth}")
         #score, move = search(board, board.turn, depth, returnMove = True) 
         
         #move, score, count = search(board, board.turn, defaultDepth, -10000, 10000)    
-        move, score, count = search(board, board.turn, defaultDepth, -10000, 10000)    
+        move, score, count = search(board, board.turn, defaultDepth, maxDepth)    
         
         log(f"... push move {move} => {score}")
         board.push(move)
@@ -64,10 +64,10 @@ def command(msg: str, board: chess.Board, defaultDepth: int):
         return                        
 
     if msg[0:2] == "go":
-        log(f"... searching with depth {defaultDepth}")
+        log(f"... searching with depth {defaultDepth}/{maxDepth}")
         #score, move = search(board, board.turn, depth, returnMove = True)        
         
-        move, score, count = search(board, board.turn, defaultDepth, -10000, 10000)  
+        move, score, count = search(board, board.turn, defaultDepth, maxDepth)  
         
         log(f"... push move {move} => {score}")
         board.push(move)

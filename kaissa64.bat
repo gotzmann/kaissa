@@ -1,1 +1,1 @@
-pypy3 uci.py 4
+pypy3 uci.py 35

@@ -6,6 +6,7 @@ from command import command
 from log import log
 import time
 from parallel import startWorkers, stopWorkers
+import math
 
 #print("UCI NAME", __name__)
 
@@ -15,9 +16,24 @@ def main():
     start = time.time()    
     startWorkers() # Init multiprocessing           
     
-    defaultDepth = 3
+#    defaultDepth = 3
+#    if len(sys.argv) > 1:
+#        defaultDepth = int(sys.argv[1])
+
     if len(sys.argv) > 1:
-        defaultDepth = int(sys.argv[1])
+        depth = int(sys.argv[1])
+        if depth < 10: # for example: 3 both for default and max depth
+            defaultDepth = depth
+            maxDepth = defaultDepth
+        else: # 37 for example: 3 for default and 7 for max depth               
+            defaultDepth = math.floor(depth / 10)
+            maxDepth = depth % 10
+    else:    
+        defaultDepth = 3    
+        maxDepth = defaultDepth
+    #print(depth, defaultDepth, maxDepth)
+    #sys.exit()
+    
 
     board = chess.Board()    
 
@@ -25,7 +41,7 @@ def main():
         msg = input()
         log(f">>> {msg}")    
         if msg == "quit": break
-        command(msg, board, defaultDepth)
+        command(msg, board, defaultDepth, maxDepth)
 
     stopWorkers()
     end = time.time()    
