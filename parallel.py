@@ -20,13 +20,14 @@ workers = []
 sharedAlpha = Value('i', -10000)
 
 # Predicted best move trees for Black and White
-future = [[], []]
+future = [ [], [] ]
 
+# Queues for parallel workers boards to analyse and returned results
 inq = Queue()
 outq = Queue()
 
 # Store tree of next best moves to search it deeper then other moves
-bestTree = []
+bestTree = ""
 
 def startWorkers():    
     workers = [ 
@@ -69,7 +70,7 @@ def search(board: chess.Board, turn: bool, depth: int, maxDepth: int, alpha: int
 
     bestMove = None
     bestScore = -10000
-    bestTree = []
+    bestTree = ""
 
     # Get all results
     # TODO Break by time-out and do more reliable processing here
@@ -84,11 +85,7 @@ def search(board: chess.Board, turn: bool, depth: int, maxDepth: int, alpha: int
         #print("===", move, "=>", score, " | BEST", bestMove)                
         if count == len(moves): break
 
-#    seq = ""
-#    for step in bestTree:
-#        seq += " > " + step.uci()
-#    print("\nTREE", seq)
-
+    ###print("\nTREE", bestTree)
     future[turn] = bestTree
 
     #print("FUTURE\n")
@@ -97,16 +94,15 @@ def search(board: chess.Board, turn: bool, depth: int, maxDepth: int, alpha: int
     return bestMove, bestScore, count    
 
 #def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int, treeIn = []):
-def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int, tree = []):
+def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int, tree = ""):
 
     # Lets count all nested calls for search within current move
     # TODO Mutex to avoid data races
     global count; count += 1    
 
-
-
     ##tree = copy.deepcopy(tree)
-    tree = copy.copy(tree)
+    #tree = copy.copy(tree)
+
     # Just return evaluation for terminal nodes  
     # TODO Check for game_over ONLY if there None move was returned!  
     if depth == 0 or board.is_game_over():               
@@ -142,26 +138,28 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int, t
     # Check all moves one by one
     for move in board.legal_moves:   
 
-        #tree = copy.deepcopy(tree)   
+        ###tree = copy.deepcopy(tree)   
 
         #print("TREE 1\n", tree)
         #alphaTree = tree
 
         #if turn == board.turn:      
-        tree.append(move)
+        ###tree.append(move)
+
+        #####tree += move.uci()
 
         board.push(move)  
         ##print("TREE2\n", tree)
         #score, tree = -negamax(board, turn, depth-1, -beta, -alpha, tree)    
-        score, newTree = negamax(board, turn, depth-1, -beta, -alpha, tree)            
+        score, newTree = negamax(board, turn, depth-1, -beta, -alpha, tree + move.uci())            
         score = -score ### !!!
-        ##print("TREE3\n", tree)
-        
+        ##print("TREE3\n", tree)        
         
         board.pop() # TODO What if do not pop?
 
         #if turn == board.turn:      
-        tree = tree[:-1]          
+        ###tree = tree[:-1]          
+        #####tree = tree[:-4]          
 
         if score > alpha:             
             # TODO Should look for order of later assignments and beta check
@@ -195,21 +193,24 @@ def worker(inq: Queue, outq: Queue, sharedAlpha: Value):
         move = board.peek()
 
         maxDepth = options.get("maxDepth", depth)
-        if len(future) > 2:
+        # If there at least three moves in tree, 
+        # we know the best next move from the previous iteration
+        # and trying to dig into it with more depth
+        if len(future) >= 12: # each moves tree coded like: f8b4c2c3f6e4
+            #print(move, "==", future[8:12], "=>", depth)
             #print(move, "==", future[2])
-            if move == future[2]:                
+            if move.uci() == future[8:12]:                
                 #depth += 2 # TODO Make special parameter!
                 depth = maxDepth
-                #print(move, "==", future[2], "=>", depth)
+                #print(move, "==", future[8:12], "=>", depth)
 
         with sharedAlpha.get_lock():
             alpha = max(alpha, sharedAlpha.value)                                    
 
         #score, tree = -negamax(board, turn, depth-1, -beta, -alpha)   
-        score, tree = negamax(board, turn, depth-1, -beta, -alpha, [move])   
+        #score, tree = negamax(board, turn, depth-1, -beta, -alpha, [move])   
+        score, tree = negamax(board, turn, depth-1, -beta, -alpha, move.uci())   
         score = -score ### !!!
-
-        #print("WORKER TREE\n", tree)
 
         with sharedAlpha.get_lock():
             if score > sharedAlpha.value:
