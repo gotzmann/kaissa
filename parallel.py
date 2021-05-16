@@ -1,7 +1,7 @@
 import chess
 from evaluate import evaluate
 import copy
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Value
 
 # TODO Learn about castling properly!
 # TODO Eliminate 3-fold repetition! See code of main.py
@@ -16,12 +16,16 @@ count = 0
 # Workers stays in memory till the programm end
 workers = []
 
+# Sharing Alpha between Processes
+sharedAlpha = Value('i', -10000)
+
 inq = Queue()
 outq = Queue()
 
+
 def startWorkers():    
     workers = [ 
-        Process(target = worker, args = (inq, outq))        
+        Process(target = worker, args = (inq, outq, sharedAlpha))        
             for _ in range(cores)
     ]        
     for w in workers: w.start() # TODO ??? w.Daemon = True
@@ -33,15 +37,19 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
 
     global count; count = 0    
     results = []    
+
+    # Init global Alpha before starting pushing into queues
+    with sharedAlpha.get_lock():
+        sharedAlpha.value = -10000
     
     # What was the last BEST move?
-    if board.ply() > 1:
-        theBoard = copy.copy(board)
-        theBoard.pop()
-        wasBest = theBoard.pop().uci()
+#    if board.ply() > 1:
+ #       theBoard = copy.copy(board)
+  #      theBoard.pop()
+   #     wasBest = theBoard.pop().uci()
         #print("WAS BEST", wasBest)
-    else:
-        wasBest = None    
+#    else:
+ #       wasBest = None    
 
     # Create queue of jobs for different workers
     moves  = list(board.legal_moves)
@@ -49,11 +57,11 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
         newBoard = copy.copy(board)
         newBoard.push(move)
         # Search previous best move deeper than others
-        if move.uci() == wasBest: 
+#        if move.uci() == wasBest: 
             #print("WAS BEST", move, "+2")
-            inq.put( (newBoard, turn, depth + 2, alpha, beta) )
-        else:    
-            inq.put( (newBoard, turn, depth, alpha, beta) )
+ #           inq.put( (newBoard, turn, depth + 2, alpha, beta) )
+  #      else:    
+        inq.put( (newBoard, turn, depth, alpha, beta) )
 
     bestMove = None
     bestScore = -10000
@@ -63,11 +71,11 @@ def search(board: chess.Board, turn: bool, depth: int, alpha: int = -10000, beta
     count = 0
     while True:        
         move, score = outq.get()
-        #print(move, "=>", score)                
         if score > bestScore:
             bestScore = score
             bestMove = move
         count += 1    
+        #print("===", move, "=>", score, " | BEST", bestMove)                
         if count == len(moves): break
 
     return bestMove, bestScore, count    
@@ -135,43 +143,27 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int):
                                           
     return alpha
 
-def worker1(inq: Queue, outq: Queue):
-
-    while True:
-
-        args = inq.get()
-        if args is None: break
-
-        board, turn, depth, alpha, beta = args
-        score = -negamax(board, not turn, depth-1, -beta, -alpha)   
-
-        # Return bestMove and bestScore
-        outq.put( (board.peek(), score) )
-
-def worker(inq: Queue, outq: Queue):
-
-    # We must init all params on the very first move 
-    ply = -1
+def worker(inq: Queue, outq: Queue, sharedAlpha: Value):
 
     while True:
 
         args = inq.get()        
-        if args is None: break # Stop worker        
-        board, turn, depth, a, b = args
+        if args is None: break # Stop worker    
 
-        # Init all params with defaults on every new move
-        if board.ply() != ply:
-            ply = board.ply()
-            alpha = a
-            beta = b                       
+        board, turn, depth, alpha, beta = args
+
+        with sharedAlpha.get_lock():
+            alpha = max(alpha, sharedAlpha.value)                                    
 
         score = -negamax(board, turn, depth-1, -beta, -alpha)   
 
-        #print("#", ply, board.peek(), "=>", score, " | ", alpha, " .. ", beta)
-        if score > alpha:
-            alpha = score
-            if score >= beta: # TODO Is it ever possible?
-                outq.put( (board.peek(), beta) )
+        with sharedAlpha.get_lock():
+            if score > sharedAlpha.value:
+                sharedAlpha.value = score
+                ##if score >= beta: # TODO Is it ever possible?
+                ##    outq.put( (board.peek(), beta) )
+
+        #print(board.peek(), "=>", score, " | ", alpha, " .. ", beta)
 
         # Return bestMove and bestScore
         outq.put( (board.peek(), score) )
