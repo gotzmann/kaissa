@@ -14,6 +14,11 @@ import math
 # TODO no 3 fold repetition
 # TODO no 50 rule move count
 
+# TODO Check what's wrong with the 4/6 depth not seening the mate?
+#      [White "02"][Black "46"][Result "1-0"] 
+#      1. e4 Nc6 2. Bd3 Ne5 3. Bb5 c6 4. Ba4 b5 
+#      5. Bb3 g5 6. d4 Nc4 7. Bxg5 Nxb2 8. Qf3 h6 9. Qxf7# 1-0
+
 def main():        
 
     startWorkers() # Init multiprocessing

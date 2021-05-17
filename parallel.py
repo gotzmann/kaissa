@@ -133,7 +133,7 @@ def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int, t
     board.push(move)        
     """
 
-    alphaTree = []
+    alphaTree = ""
 
     # Check all moves one by one
     for move in board.legal_moves:   
