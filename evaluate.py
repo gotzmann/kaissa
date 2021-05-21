@@ -38,7 +38,6 @@ def evaluate(board: chess.Board, turn: bool):
         score = 10000 - board.ply()                                
         if turn != board.turn:        
             score = -score                
-        #print("TERMINAL MATE", board.peek(), score)        
         return score                        
 
     score = 0

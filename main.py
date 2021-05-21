@@ -1,18 +1,12 @@
 import chess
-from parallel import search, startWorkers, stopWorkers
 import sys
 import time
-import copy
 import math
+from parallel import search, startWorkers, stopWorkers
 
 # TODO Compute count correctly
 # TODO Save best computed moves for later? I mean cache the game tree
-
 # TODO Compute Moves Per Second metric to understand the average performance
-# TODO no castling
-# TODO no enpassant
-# TODO no 3 fold repetition
-# TODO no 50 rule move count
 
 # TODO Check what's wrong with the 4/6 depth not seening the mate?
 #      [White "02"][Black "46"][Result "1-0"] 
@@ -22,10 +16,9 @@ import math
 def main():        
 
     startWorkers() # Init multiprocessing
-
     start = time.time()
-
     maxPlies = 6 # 0 for unlimited moves    
+
     if len(sys.argv) > 1:
         depth = int(sys.argv[1])
         if depth < 10: # for example: 3 both for default and max depth
@@ -37,15 +30,9 @@ def main():
     else:    
         defaultDepth = 3    
         maxDepth = defaultDepth
-    #print(depth, defaultDepth, maxDepth)
-    #sys.exit()
-    movesPerSecond = 0
-    board = chess.Board()
-    boards = [] # we should check for 3-fold repetition and similar things
 
-#    board.push(chess.Move.from_uci("e2e4"))
-#    board.push(chess.Move.from_uci("e7e5"))
-#    board.push(chess.Move.from_uci("g1f3"))    
+    movesPerSecond = 0
+    board = chess.Board()    
 
     print("\n===============")    
     print("     START     ")
@@ -56,9 +43,8 @@ def main():
     while not maxPlies or board.ply() < maxPlies:
 
         print("\n[", len(list(board.legal_moves)), "] =>", [ move.uci() for move in board.legal_moves ])
-
+        
         move, score, count = search(board, board.turn, defaultDepth, maxDepth)    
-
         board.push(move)   
         movesPerSecond += count
 
@@ -67,23 +53,6 @@ def main():
         print("===============")    
         print(board)
         print("===============")        
-
-        # Check for 3-fold rule
-        # TODO Store hash of FEN strings to speed up things
-        boards.append(copy.copy(board))
-        if len(boards) > 8:
-            folds = 1
-            # Traverse over all previous board states from the one 
-            # before the current and calculate repetitions
-            for b in boards[-2:-10:-1]:
-                if board.board_fen() == b.board_fen():
-                    folds += 1
-
-            if folds == 3:
-                print("===============")
-                print("    3-FOLD!    ")        
-                print("===============")
-                break
 
         if board.is_game_over():
             print("===============")

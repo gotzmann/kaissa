@@ -7,34 +7,21 @@ from multiprocessing import Process, Queue, Value
 # TODO Eliminate 3-fold repetition! See code of main.py
 # TODO Implement time constraints to avoid "Black forfeits on time"
 
-# How many CPU cores should we use?
-cores = 6
-
-# Total count of nested calls within current ply
-count = 0
-
-# Workers stays in memory till the programm end
-workers = []
-
-# Sharing Alpha between Processes
-sharedAlpha = Value('i', -10000)
-
-# Predicted best move trees for Black and White
-future = [ [], [] ]
-
-# Queues for parallel workers boards to analyse and returned results
-inq = Queue()
-outq = Queue()
-
-# Store tree of next best moves to search it deeper then other moves
-bestTree = ""
+cores = 6         # How many CPU cores should we use?
+count = 0         # Total count of nested calls within current ply
+workers = []      # Workers stays in memory till the programm end
+sharedAlpha = Value('i', -10000) # Sharing Alpha between Processes
+future = [[], []] # Predicted best move trees for Black and White
+bestTree = ""     # Store tree of next best moves to search it deeper then other moves
+inq = Queue()     # Input moves queue for paraller workers
+outq = Queue()    # Output results queue for paraller workers
 
 def startWorkers():    
     workers = [ 
         Process(target = worker, args = (inq, outq, sharedAlpha))        
             for _ in range(cores)
     ]        
-    for w in workers: w.start() # TODO ??? w.Daemon = True
+    for w in workers: w.start() # TODO 
     
 def stopWorkers():
     for _ in range(cores): inq.put(None)    
@@ -47,25 +34,11 @@ def search(board: chess.Board, turn: bool, depth: int, maxDepth: int, alpha: int
     with sharedAlpha.get_lock():
         sharedAlpha.value = -10000
     
-    # What was the last BEST move?
-#    if board.ply() > 1:
- #       theBoard = copy.copy(board)
-  #      theBoard.pop()
-   #     wasBest = theBoard.pop().uci()
-        #print("WAS BEST", wasBest)
-#    else:
- #       wasBest = None    
-
     # Create queue of jobs for different workers
     moves  = list(board.legal_moves)
     for move in moves:        
         newBoard = copy.copy(board)
         newBoard.push(move)
-        # Search previous best move deeper than others
-#        if move.uci() == wasBest: 
-            #print("WAS BEST", move, "+2")
- #           inq.put( (newBoard, turn, depth + 2, alpha, beta) )
-  #      else:    
         inq.put( (newBoard, turn, depth, alpha, beta, future[turn], {"maxDepth": maxDepth}) )
 
     bestMove = None
@@ -73,7 +46,6 @@ def search(board: chess.Board, turn: bool, depth: int, maxDepth: int, alpha: int
     bestTree = ""
 
     # Get all results
-    # TODO Break by time-out and do more reliable processing here
     count = 0
     while True:        
         move, score, tree = outq.get()
@@ -88,95 +60,31 @@ def search(board: chess.Board, turn: bool, depth: int, maxDepth: int, alpha: int
     ###print("\nTREE", bestTree)
     future[turn] = bestTree
 
-    #print("FUTURE\n")
-    #print(future)
-
     return bestMove, bestScore, count    
 
-#def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int, treeIn = []):
 def negamax(board: chess.Board, turn: bool, depth: int, alpha: int, beta: int, tree = ""):
 
     # Lets count all nested calls for search within current move
-    # TODO Mutex to avoid data races
-    global count; count += 1    
-
-    ##tree = copy.deepcopy(tree)
-    #tree = copy.copy(tree)
+    global count; count += 1  # TODO Mutex to avoid data races   
 
     # Just return evaluation for terminal nodes  
     # TODO Check for game_over ONLY if there None move was returned!  
     if depth == 0 or board.is_game_over():               
         return evaluate(board, turn), tree
 
-    """
-    # We should get last move from the top of the board to compute check/mate situation correctly
-    move = board.pop()
-
-    # Heuristic to valuate the MATE move    
-    if board.gives_check(move):            
-        board.push(move)  
-        if board.is_checkmate():      
-            score = -(10000 - board.ply())
-            print("TOP MATE", move, score)
-            return score
-        else:    
-            board.pop()
-
-    # Heuristic to valuate the CHECK move    
-    if board.gives_check(move):            
-        score = -(9000 - board.ply())        
-        print("TOP CHECK", move, score)
-        board.push(move)        
-        return score
-
-    # Return board to the initial state
-    board.push(move)        
-    """
-
     alphaTree = ""
 
     # Check all moves one by one
     for move in board.legal_moves:   
 
-        ###tree = copy.deepcopy(tree)   
-
-        #print("TREE 1\n", tree)
-        #alphaTree = tree
-
-        #if turn == board.turn:      
-        ###tree.append(move)
-
-        #####tree += move.uci()
-
         board.push(move)  
-        ##print("TREE2\n", tree)
-        #score, tree = -negamax(board, turn, depth-1, -beta, -alpha, tree)    
         score, newTree = negamax(board, turn, depth-1, -beta, -alpha, tree + move.uci())            
-        score = -score ### !!!
-        ##print("TREE3\n", tree)        
-        
+        score = -score 
         board.pop() # TODO What if do not pop?
 
-        #if turn == board.turn:      
-        ###tree = tree[:-1]          
-        #####tree = tree[:-4]          
-
-        if score > alpha:             
-            # TODO Should look for order of later assignments and beta check
-            alpha = score
-            #tree.append(move)
+        if score > alpha:                         
+            alpha = score            
             alphaTree = newTree
-
-            # Print board for "root" moves
-            #if returnMove:
-            #    print("\n---------------")                   
-            #    print(f"MAX", "WHITE" if board.turn else "BLACK", move, "=>", score)
-            #    print("---------------")   
-            #    board.push(move)
-            #    print(board)
-            #    board.pop()            
-            #    print("---------------")   
-
             ##if score >= beta:             
             ##    return beta
                                           
@@ -197,28 +105,20 @@ def worker(inq: Queue, outq: Queue, sharedAlpha: Value):
         # we know the best next move from the previous iteration
         # and trying to dig into it with more depth
         if len(future) >= 12: # each moves tree coded like: f8b4c2c3f6e4
-            #print(move, "==", future[8:12], "=>", depth)
-            #print(move, "==", future[2])
             if move.uci() == future[8:12]:                
-                #depth += 2 # TODO Make special parameter!
                 depth = maxDepth
-                #print(move, "==", future[8:12], "=>", depth)
 
         with sharedAlpha.get_lock():
             alpha = max(alpha, sharedAlpha.value)                                    
 
-        #score, tree = -negamax(board, turn, depth-1, -beta, -alpha)   
-        #score, tree = negamax(board, turn, depth-1, -beta, -alpha, [move])   
         score, tree = negamax(board, turn, depth-1, -beta, -alpha, move.uci())   
-        score = -score ### !!!
+        score = -score 
 
         with sharedAlpha.get_lock():
             if score > sharedAlpha.value:
                 sharedAlpha.value = score
                 ##if score >= beta: # TODO Is it ever possible?
                 ##    outq.put( (board.peek(), beta) )
-
-        #print(board.peek(), "=>", score, " | ", alpha, " .. ", beta)
 
         # Return bestMove and bestScore
         outq.put( (move, score, tree) )

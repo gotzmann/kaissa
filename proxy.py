@@ -4,16 +4,9 @@ from threading  import Thread
 from queue import Queue, Empty
 import sys
 
-#depth = 0
-#if len(sys.argv) > 1:
-#    depth = int(sys.argv[1])
-
 engine = "C:\\git\\kaissa64\\engines\\" + sys.argv[1]     
 depth = sys.argv[2]
-
-#cmd = ['pypy3.exe', 'C:\\git\\kaissa64\\uci.py']
-#cmd = ['C:\\git\\kaissa64\\engines\\sos.exe']
-cmd = [engine]
+cmd = [ engine ]
 
 def inProcess(stdin, queue):
     while True:
